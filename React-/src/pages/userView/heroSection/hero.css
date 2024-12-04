@@ -1,0 +1,129 @@
+.Hero-Section{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row-reverse;
+    overflow: hidden;
+}
+
+.Hero-Text{
+    margin: 4rem 4rem;
+    letter-spacing: 0.1rem;
+}
+
+.Hero-Header{
+    font-size: 2.5rem;
+}
+
+.Hero-Subtext {
+    margin-top: 4rem;
+}
+
+.Hero-Subtext > h3{
+    text-decoration: underline;
+    cursor: initial;
+    margin: 0rem 0rem 1.4rem 0rem;
+    font-size: 2rem;
+    letter-spacing: 0.1rem;
+}
+
+.Hero-Subtext > p{
+    max-width: 40rem;
+    font-size: 1.3rem;
+    text-align: justify;
+}
+
+.Hero-Image > img{
+    max-width: 40rem;
+    margin-right: 2rem;
+}
+
+@media screen and (max-width: 1300px) {
+
+    .Hero-Section{
+        flex-direction: column;
+        align-items: center;
+    }
+    .Hero-Text{
+        text-align: center;
+
+    }
+
+    .Hero-Header{
+        margin-top: 4rem;
+        text-align: start;
+    }
+
+    .Hero-Image{
+        position: absolute;
+        z-index: -99;
+        opacity: 80%;
+        top: 3rem;
+        right: 0rem;
+    }
+
+    .Hero-Subtext{
+        margin-top: 7rem;
+    }
+    .Hero-Subtext > p{
+        max-width: 60rem;
+        
+    }
+}
+
+@media screen and (max-width: 750px) {
+
+    .Hero-Section{
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .Hero-Image{
+        top: 5rem;
+    }
+
+    .Hero-Image > img {
+        width: 30rem;
+    }
+    
+    .Hero-Header{
+        font-size: 1.8rem;
+    }
+    .Hero-Subtext > h3 {
+        font-size: 1.6rem;
+    }
+
+    .Hero-Subtext > p {
+        font-size: 1.1rem;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    
+
+    .Hero-Image{
+
+        top: 8rem;
+    }
+
+    .Hero-Image > img {
+        width: 20rem;
+        margin: 1rem;
+    }
+    
+    .Hero-Header{
+        font-size: 1.3rem;
+    }
+
+    .Hero-Subtext{
+        margin-top: 4rem;
+    }
+
+    .Hero-Subtext > h3 {
+        font-size: 1rem;
+    }
+
+    .Hero-Subtext > p {
+        font-size: 0.8rem;
+    }
+}
