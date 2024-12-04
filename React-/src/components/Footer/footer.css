@@ -1,0 +1,91 @@
+.Footer-Section{
+    display: flex;
+    justify-content: space-around;
+    align-items: start;
+    background-color: rgb(33, 33, 33);
+    color: rgb(170, 170, 170);
+    letter-spacing: 0.1rem;
+    min-height: 13rem;
+    min-width: 100%;
+
+    /* 2 ways to keep footer at bottom */
+    /* position: absolute;
+    bottom: 0; */
+
+    /* margin-top: auto; */
+}
+
+.profile-pic{
+    display: flex;
+    align-items: center;
+    margin: 2rem 2rem;
+}
+
+.profile-subtext{
+    margin: 1.3rem;
+}
+
+.profile-subtext > p{
+    margin: 0.5rem 0rem;
+}
+
+
+.profile-pic > img{
+    width: 7rem;
+    border-radius: 2rem;
+}
+
+.contact-us{
+    margin: 2rem;
+}
+
+.contact-us > h3{
+    text-decoration: underline;
+    cursor: initial;
+    margin-bottom: 1.3rem;
+}
+    
+.contact-us > h4{
+    margin: 0.6rem 0rem;
+}
+    
+span{
+    font-weight: 900;
+}
+
+
+.links{
+    margin: 2rem;
+    text-align: center;
+    
+}
+
+.links > h3{
+    text-decoration: underline;
+    cursor: initial;
+    margin-bottom: 1rem;
+}
+
+.links > a{
+    margin: 1rem;
+}
+
+.links > a > img{
+    margin: 0.4rem 0rem;
+    width: 4.2rem;
+}
+
+@media screen and (max-width: 950px) {
+
+    .Footer-Section{
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 0rem;
+    }
+
+    .contact-us{
+        text-align: center;
+
+    }
+    
+}

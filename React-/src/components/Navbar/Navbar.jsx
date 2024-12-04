@@ -1,6 +1,6 @@
 import React,{useState} from 'react';
 import './Navbar.css'
-import Button from './ui/Button'
+import Button from '../ui/Button'
 import {Link, NavLink} from 'react-router-dom'
 
 function Navbar() {
