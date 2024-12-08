@@ -4,8 +4,7 @@
     align-items: start;
     background-color: rgb(33, 33, 33);
     color: rgb(170, 170, 170);
-    letter-spacing: 0.1rem;
-    min-height: 13rem;
+    min-height: 12rem;
     min-width: 100%;
 
     /* 2 ways to keep footer at bottom */

@@ -1,11 +1,11 @@
-import MainPage from './pages/userView/MainPage.jsx'
+import HomePage from './pages/userView/homePage/'
 import './App.css'
 
 function App() {
   
   return (
     <>
-      <MainPage />
+      <HomePage />
     </>
   )
 }

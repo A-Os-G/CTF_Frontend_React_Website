@@ -1,0 +1,55 @@
+.body1-Section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #E3F9ED;
+    min-height: 20rem;
+    min-width: 100%;
+    padding: 4rem 2rem;
+}
+
+.header{
+    text-align: center;
+    text-decoration: underline;
+    cursor: initial;
+    margin: 2rem;
+    font-size: 1.2rem;
+
+
+}
+
+.reasons-Section{
+    display: flex;
+
+}
+
+.reason{
+    margin: 2rem;
+    max-width: 25rem;
+    justify-content: center;
+    text-align: center;
+    /* border: solid black 0.1rem; */
+    padding: 2.1rem;
+    box-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.393);
+    background-color: white;
+
+}
+
+.reason > h2{
+    margin-bottom: 1.5rem;
+}
+
+.reason > p{
+    font-size: 1.2rem;
+    font-weight: 500;
+    /* margin: 0rem 2rem; */
+}
+
+@media screen and (max-width:950px) {
+
+    .reasons-Section{
+        flex-direction: column;
+    }
+    
+}

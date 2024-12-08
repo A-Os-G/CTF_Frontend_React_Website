@@ -11,7 +11,7 @@ function Hero() {
             {/* Text */}
             <div className='Hero-Text'>
                 <div className='Hero-Header'>
-                    <h1>Apply <br/> your <br/> Knowledge?</h1>
+                    <h1>Test <br/> your <br/> Knowledge?</h1>
                 </div>
                 <div className='Hero-Subtext'>   
                     <h3>What is Capture The Flag?</h3>

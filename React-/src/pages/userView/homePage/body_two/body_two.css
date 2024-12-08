@@ -1,0 +1,59 @@
+.body2-Section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    min-height: 23rem;
+    min-width: 100%;
+    padding: 4rem 2rem;
+}
+.body2_button > Button{
+    margin: 2rem;
+    padding: 1rem;
+    font-size: 1.5rem;
+}
+
+.header{
+    text-align: center;
+    text-decoration: underline;
+    cursor: initial;
+    margin: 2rem;
+    font-size: 1.2rem;
+
+
+}
+
+.reasons-Section{
+    display: flex;
+
+}
+
+.b2_reason{
+    margin: 2rem;
+    max-width: 25rem;
+    justify-content: center;
+    text-align: center;
+    /* border: solid black 0.1rem; */
+    padding: 2.1rem;
+    box-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.393);
+    background-color: #E3F9ED;
+
+}
+
+.b2_reason > h2{
+    margin-bottom: 1.5rem;
+}
+
+.b2_reason > p{
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+@media screen and (max-width:950px) {
+
+    .reasons-Section{
+        flex-direction: column;
+    }
+    
+}
