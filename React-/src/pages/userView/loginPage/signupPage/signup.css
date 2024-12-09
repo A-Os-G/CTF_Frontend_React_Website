@@ -1,0 +1,98 @@
+.signup-Section{
+    display: flex;
+    align-items: center;
+}
+
+.image-Side{
+    justify-content: center;
+    display: flex;
+    width: 60%;
+}
+
+.image-Side > img{
+    max-width: 90%;
+    max-height: 100vh;
+}
+
+.input-Side{
+    background-color: #63e1a8;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    width: 40%;
+    min-height: 100vh;
+}
+
+.signup-header{
+    font-size: 2rem;
+    color: #ffffff;
+    text-decoration: underline;
+    margin-top: 2rem;
+}
+
+.inputs{
+    margin: 2rem 3rem;
+}
+
+.inputs > a{
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.8rem;
+}
+
+.inputbox{
+    background-color: #E3F9ED;
+    display: flex;
+    align-items: center;
+    margin: 1rem 0rem;
+    border-radius: 1rem;
+} 
+
+ .inputbox > input{
+    width: 100%;
+    border: none;
+    outline: none;
+    margin: 0.5rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    font-size: 1rem;
+    border: solid 0.2rem #63e1a800;
+    transition: 0.3s border;
+}
+
+.inputbox > input:hover{
+    border: solid 0.2rem #63e1a8;
+
+}
+
+.inputbox > img{
+    height: 2rem;
+    margin-left:1rem;
+    opacity: 60%;
+}
+
+.signup-button Button{
+    padding: 1.3rem 5rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+
+} 
+
+@media screen and (max-width:1000px) {
+    .input-Side{
+        width: 65%;
+    }
+}
+
+
+@media screen and (max-width:700px) {
+
+    .image-Side{
+        display: none;
+    }
+    .input-Side{
+        width: 100%;
+    }
+}

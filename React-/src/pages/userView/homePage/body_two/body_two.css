@@ -12,7 +12,13 @@
     margin: 2rem;
     padding: 1rem;
     font-size: 1.5rem;
+    background-color: #B7F1D4;
 }
+.body2_button > Button:hover{
+    background-color: #E3F9ED;
+
+}
+
 
 .header{
     text-align: center;
