@@ -5,13 +5,13 @@ import Button from '../../../../components/ui/Button';
 function Body_Two() {
     return ( 
         <>
-            <div className="body2-Section">
+            <div className="b2-Section">
 
                 <div className="header">
                     <h1>Why Practice With Us?</h1>
                 </div>
 
-                <div className="reasons-Section">
+                <div className="b2_reasons-Section">
                     <div className="b2_reason">
                         <h2>Beginner-Friendly:</h2>
                         <p>This website offers hints and solutions, making cybersecurity concepts easy for beginners.</p>
@@ -28,7 +28,7 @@ function Body_Two() {
                     </div>
                 </div>
 
-                    <div className="body2_button">
+                    <div className="b2_button wiggle">
                         <Button name="Start Practice" address="./challenges"/>
                     </div>
             </div>

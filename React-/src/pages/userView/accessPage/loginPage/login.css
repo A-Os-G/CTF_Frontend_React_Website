@@ -3,24 +3,27 @@
     align-items: center;
 }
 
-.image-Side{
+.login-image-Side{
     justify-content: center;
     display: flex;
     width: 60%;
 }
 
-.image-Side > img{
+.login-image-Side > img{
     max-width: 90%;
     max-height: 100vh;
 }
 
-.input-Side{
+.login-input-Side{
     background-color: #63e1a8;
     display: flex;
     flex-direction: column;
     text-align: center;
     justify-content: center;
-    width: 40%;
+    /* width: 40%; */
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: 30rem;
     min-height: 100vh;
 }
 
@@ -31,11 +34,11 @@
     margin-top: 2rem;
 }
 
-.inputs{
+.login-inputs{
     margin: 2rem 3rem;
 }
 
-.inputs > a{
+.login-inputs > a{
     color: blue;
     cursor: pointer;
     text-decoration: underline;
@@ -80,19 +83,13 @@
 
 } 
 
-@media screen and (max-width:1000px) {
-    .input-Side{
-        width: 65%;
-    }
-}
-
 
 @media screen and (max-width:700px) {
 
-    .image-Side{
+    .login-image-Side{
         display: none;
     }
-    .input-Side{
+    .login-input-Side{
         width: 100%;
     }
 }

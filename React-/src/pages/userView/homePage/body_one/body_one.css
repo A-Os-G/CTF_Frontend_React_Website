@@ -21,18 +21,22 @@
 
 .reasons-Section{
     display: flex;
-
+    flex-wrap: wrap;
+    justify-content: center;
+    /* gap: 2rem; */
 }
 
 .reason{
     margin: 2rem;
     max-width: 25rem;
+    min-height: 12rem;
     justify-content: center;
     text-align: center;
     /* border: solid black 0.1rem; */
     padding: 2.1rem;
     box-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.393);
     background-color: white;
+
 
 }
 
@@ -44,12 +48,4 @@
     font-size: 1.2rem;
     font-weight: 500;
     /* margin: 0rem 2rem; */
-}
-
-@media screen and (max-width:950px) {
-
-    .reasons-Section{
-        flex-direction: column;
-    }
-    
 }

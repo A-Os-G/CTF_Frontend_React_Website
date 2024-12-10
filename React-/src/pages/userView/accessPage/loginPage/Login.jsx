@@ -8,17 +8,17 @@ function Login() {
 
         <div className="login-Section">
 
-            <div className="image-Side">
+            <div className="login-image-Side">
                 <img src="/images/Login_image.jpg" alt="" />
             </div>
         
-            <div className="input-Side">
+            <div className="login-input-Side">
         
                 <div className="login-header">
                     <h1>Login</h1>
                 </div>
 
-                <div className="inputs">
+                <div className="login-inputs">
 
 
                     <div className='inputbox email'>
