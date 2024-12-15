@@ -9,6 +9,7 @@ function Navbar() {
 
     const toggleActive = () => {setisActive(!isActive);};
 
+
     return ( 
         <nav>
             <div className='nav-bar'>

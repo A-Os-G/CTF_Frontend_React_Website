@@ -17,12 +17,14 @@
     align-items: center;
     flex-direction: row-reverse;
     /* height: 12rem; */
+    
 }
 
 .aboutHeader{
     width: 50%;
     font-size: 1.2rem;
-
+    
+    
 }
 
 .aboutSubtext{
@@ -30,4 +32,8 @@
     background-color: #E3F9ED;
     padding: 6rem 1rem;
     font-size: 1.2rem;
+}
+
+.aboutSubtext > p{
+    margin: 0rem 1rem;
 }

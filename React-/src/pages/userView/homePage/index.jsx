@@ -15,9 +15,7 @@ function MainPage() {
             <Body_One />
             <Body_Two />
             <About />
-
-
-            < Footer/>
+            <Footer />
         </>
      );
 }
