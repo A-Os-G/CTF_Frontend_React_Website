@@ -12,9 +12,11 @@ function ChallengePage() {
             <Navbar />
 
             <div className='body'>
-                {/* <Progress /> */}
-                <Filter />
-                <ChallengeCard/>
+                <Progress />
+                <div className="layout">
+                    <Filter />
+                    <ChallengeCard/>
+                </div>
             </div>
 
             <Footer />

@@ -1,4 +1,10 @@
 .body{
     display: flex;
+    flex-direction: column;
+}
+
+.layout{
+    display: flex;
     align-items: flex-start;
+    justify-content: flex-start;
 }

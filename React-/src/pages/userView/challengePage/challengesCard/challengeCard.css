@@ -2,7 +2,7 @@
     display: flex;
     justify-content: start;
     flex-wrap: wrap;
-    margin: 2rem;
+    margin-top: 1rem;
 }
 
 .Card{
