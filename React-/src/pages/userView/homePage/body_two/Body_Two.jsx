@@ -7,7 +7,7 @@ function Body_Two() {
         <>
             <div className="b2-Section">
 
-                <div className="header">
+                <div className="b2-header">
                     <h1>Why Practice With Us?</h1>
                 </div>
 

@@ -1,4 +1,4 @@
-.body1-Section{
+.b1-Section{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -9,24 +9,22 @@
     padding: 4rem 2rem;
 }
 
-.header{
+.b1-header{
     text-align: center;
     text-decoration: underline;
     cursor: initial;
     margin: 2rem;
     font-size: 1.2rem;
-
-
 }
 
-.reasons-Section{
+.b1-reasons-Section{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     /* gap: 2rem; */
 }
 
-.reason{
+.b1-reason{
     margin: 2rem;
     max-width: 25rem;
     min-height: 12rem;
@@ -40,11 +38,11 @@
 
 }
 
-.reason > h2{
+.b1-reason > h2{
     margin-bottom: 1.5rem;
 }
 
-.reason > p{
+.b1-reason > p{
     font-size: 1.2rem;
     font-weight: 500;
     /* margin: 0rem 2rem; */

@@ -1,4 +1,3 @@
-
 .b2-Section{
     display: flex;
     flex-direction: column;
@@ -17,24 +16,21 @@
     background-color: #B7F1D4;
     border-radius: 3rem;
     box-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.393);
-
-    
-}
-.b2_button > Button:hover{
-    background-color: #63E1A8;
-    
 }
 
-
-.header{
+.b2-header{
     text-align: center;
     text-decoration: underline;
     cursor: initial;
     margin: 2rem;
     font-size: 1.2rem;
-
-
 }
+
+.b2_button > Button:hover{
+    background-color: #63E1A8;
+    
+}
+
 
 .b2_reasons-Section{
     display: flex;
@@ -63,15 +59,6 @@
     font-size: 1.2rem;
     font-weight: 500;
 }
-
-@media screen and (max-width:950px) {
-
-    .reasons-Section{
-        flex-direction: column;
-    }
-    
-}
-
 
 @keyframes wiggle {
     0%,

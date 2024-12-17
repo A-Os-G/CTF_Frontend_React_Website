@@ -2,13 +2,13 @@
     display: flex;
     justify-content: start;
     flex-wrap: wrap;
-    margin-top: 1rem;
+    margin: 1rem 0rem;
 }
 
 .Card{
     border: solid 0.05em black;
     box-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.393);
-    background-color: #63E1A8;
+    background-color: #B7F1D4;
     border-radius: 0.5rem;
     display: flex;
     flex-shrink: 0;

@@ -37,7 +37,7 @@ function Navbar() {
                     </ul>
                 
                 {/* Login Button */}
-                    <div className='button'>
+                    <div className='Nav-button'>
                         <Button name="Login / Signup" address="./login"/>
                     </div>
                 </div>
