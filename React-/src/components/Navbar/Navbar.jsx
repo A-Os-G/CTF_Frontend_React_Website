@@ -2,8 +2,9 @@ import React,{useState} from 'react';
 import './Navbar.css'
 import Button from '../ui/Button'
 import {Link, NavLink} from 'react-router-dom'
+import { Link as Scroll } from 'react-scroll';
 
-function Navbar() {
+function Navbar(props) {
 
     const [isActive,setisActive] = useState(false);
 
@@ -31,14 +32,14 @@ function Navbar() {
                 {/* Tabs */}
                 <div className={`nav-tabs ${isActive ? '' : 'activated'}`}>
                     <ul>
-                        <li><NavLink to={"./home"}>Home</NavLink></li>
-                        <li><NavLink to={"./challenges"}>Challenges</NavLink></li>
-                        <li><NavLink to={"./about"}>About</NavLink></li>
+                        <li><Scroll to={"hero"} smooth duration={500}>Home</Scroll></li>
+                        <li><Scroll to={"challenge"} smooth duration={500}>Challenges</Scroll></li>
+                        <li><Scroll to={"about"} smooth duration={500}>About</Scroll></li>
                     </ul>
                 
                 {/* Login Button */}
                     <div className='Nav-button'>
-                        <Button name="Login / Signup" address="./login"/>
+                        <Button name="Login / Signup" address="./signup"/>
                     </div>
                 </div>
             </div>

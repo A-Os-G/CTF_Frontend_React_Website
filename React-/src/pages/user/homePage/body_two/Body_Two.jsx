@@ -5,7 +5,7 @@ import Button from '../../../../components/ui/Button';
 function Body_Two() {
     return ( 
         <>
-            <div className="b2-Section">
+            <div id='challenge' className="b2-Section">
 
                 <div className="b2-header">
                     <h1>Why Practice With Us?</h1>
@@ -29,7 +29,7 @@ function Body_Two() {
                 </div>
 
                     <div className="b2_button wiggle">
-                        <Button name="Start Practice" address="./challenges"/>
+                        <Button name="Start Practice" address="./challenge"/>
                     </div>
             </div>
 

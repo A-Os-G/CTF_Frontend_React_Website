@@ -8,11 +8,15 @@ import './index.css'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
+
       <Helmet>
         <title>Capture The Flag</title>
         <link rel="shortcut icon" href="./images/navbarImage_white.png" />
       </Helmet>
+
+
       <App />
+      
     </BrowserRouter>
   </StrictMode>
 )

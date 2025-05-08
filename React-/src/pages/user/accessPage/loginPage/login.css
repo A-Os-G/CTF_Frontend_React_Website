@@ -38,12 +38,17 @@
     margin: 2rem 3rem;
 }
 
-.login-inputs > a{
+.login-inputs > .routing > a {
     color: blue;
     cursor: pointer;
     text-decoration: underline;
     font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;
 }
+
+
 
 .inputbox{
     background-color: #E3F9ED;

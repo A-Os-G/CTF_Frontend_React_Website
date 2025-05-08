@@ -3,7 +3,7 @@ import './hero.css';
 
 function Hero() {
     return ( 
-        <div className='Hero-Section'>
+        <div id='hero' className='Hero-Section'>
             {/* Image */}
             <div className='Hero-Image'>
                 <img src="./images/Hero_Image.jpg" alt="" />

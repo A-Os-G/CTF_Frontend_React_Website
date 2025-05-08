@@ -1,6 +1,7 @@
 import React from 'react';
 import './login.css'
 import Button from '../../../../components/ui/Button';
+import {Link} from 'react-router-dom'
 
 function Login() {
     return ( 
@@ -31,8 +32,10 @@ function Login() {
                         <input placeholder='Password' type='password'></input>  
                     </div>
 
-
-                    <a href='/#'>Forget My Password?</a>
+                    <div className="routing">
+                        <Link to='/#'>Forget My Password?</Link>
+                        <Link to='/signup'>Signup</Link>
+                    </div>
 
                 </div>
                 <div className="login-button">

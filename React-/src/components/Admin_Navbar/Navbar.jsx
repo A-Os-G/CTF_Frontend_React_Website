@@ -15,7 +15,7 @@ function Navbar() {
             <div className='nav-bar'>
                 
                 {/* Logo + Name */}
-                <Link to={"/"}>
+                <Link to={"/admin"}>
                     <div className='nav-brand'>
                         <img src='/images/navbarImage.png'></img>
                         <h3>Capture The Flag</h3>
@@ -31,10 +31,10 @@ function Navbar() {
                 {/* Tabs */}
                 <div className={`nav-tabs ${isActive ? '' : 'activated'}`}>
                     <ul>
-                        <li><NavLink to={"./users"}>Users</NavLink></li>
-                        <li><NavLink to={"./challenges"}>Challenges</NavLink></li>
-                        <li><NavLink to={"./category"}>Category</NavLink></li>
-                        <li><NavLink to={"./feedback"}>Feedback</NavLink></li>
+                        <li><NavLink to={"/admin/users"}>Users</NavLink></li>
+                        <li><NavLink to={"/admin/challenges"}>Challenges</NavLink></li>
+                        <li><NavLink to={"/admin/category"}>Category</NavLink></li>
+                        <li><NavLink to={"/admin/feedback"}>Feedback</NavLink></li>
                     </ul>
                 
                 {/* Login Button */}

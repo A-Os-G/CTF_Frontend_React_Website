@@ -1,7 +1,7 @@
 import React from 'react';
-// import '../../../../hooks/GetElementDimensions'
 import './challengeCard.css'
 import GetElementDimensions from '../../../../hooks/GetElementDimensions';
+import {Link} from 'react-router-dom'
 
 // function DynamicCard() {}
 
@@ -10,7 +10,7 @@ function ChallengeCard() {
         <>
             <div className="challengeCard-Section">
 
-                <div className="Card">
+                <Link to='./slug' className="Card">
                     <div className="cat-Diff">
                         <p>Cateogry</p>
                         <p>Diffucilty</p>
@@ -33,7 +33,7 @@ function ChallengeCard() {
                         <img src="./images/Star_full.png" className='Side' />
                     </div>
 
-                </div>
+                </Link>
 
                 <div className="Card">
                     <div className="cat-Diff">

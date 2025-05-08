@@ -1,6 +1,7 @@
 import React from 'react';
 import './signup.css'
 import Button from '../../../../components/ui/Button';
+import {Link} from 'react-router-dom'
 
 function Signup() {
     return ( 
@@ -40,7 +41,7 @@ function Signup() {
                         <input placeholder='Confirm Password' type='password'></input>  
                     </div>
 
-                    <a href='/#'>Already Have an account?</a>
+                    <Link to='/login'>Already Have an account?</Link>
 
                 </div>
                 <div className="signup-button">
