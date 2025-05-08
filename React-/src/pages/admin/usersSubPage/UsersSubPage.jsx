@@ -1,173 +1,167 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import '../../../components/AdminSubPageLayout/adminSubPageLayout.css';
 import axios from 'axios';
 
 function UsersSubPage() {
-
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [searchMessage, setSearchMessage] = useState('');
     const [isSearching, setIsSearching] = useState(false);
-
-
-
     const [editError, setEditError] = useState(null);
     const [showEditForm, setShowEditForm] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [editUserData, setEditUserData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER',
-    });
-
-
+    const [editUserData, setEditUserData] = useState({ username: '', email: '', password: '', role: 'USER' });
     const [showAddForm, setShowAddForm] = useState(false);
-    const [newUser, setNewUser] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER'
-
-    });
+    const [newUser, setNewUser] = useState({ username: '', email: '', password: '', role: 'USER' });
     const [addError, setAddError] = useState(null);
-
     const [data, setData] = useState([]);
-    const [searchEmail,setSearchEmail] = useState('');
+    const [searchEmail, setSearchEmail] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
-    // Search Users By Email
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Escape') {
+                setShowAddForm(false);
+                setShowEditForm(false);
+                setSelectedUser(null);
+                setAddError(null);
+                setEditError(null);
+            }
+            if (e.key === 'Enter') {
+                if (showAddForm && !submitting) handleAddUser();
+                if (showEditForm && !submitting && selectedUser) handleEditUser(selectedUser.id);
+            }
+        };
+        document.addEventListener('keydown', handleKeyPress);
+        return () => document.removeEventListener('keydown', handleKeyPress);
+    }, [showAddForm, showEditForm, selectedUser, submitting]);
+
     const handleSearch = (e) => {
-
-        e.preventDefault(); // prevent form reload
+        e.preventDefault();
         setIsSearching(true);
-
         const trimmedEmail = searchEmail.trim();
-    
-        // If input is empty or only spaces, reset to full list
+
         if (!trimmedEmail) {
-            setIsSearching(false); // ← turn off search mode
+            setIsSearching(false);
             handleUsersAll();
             return;
         }
-        
-    
+
         setLoading(true);
         setError(null);
 
-        setLoading(true);
         axios.get(`/api/user/get/email/${trimmedEmail}`)
-        .then((res) => {
-            const user = res.data.response;
-            setData(user ? [user] : []);
-            setSearchMessage(user ? '' : "No user found with that email.");
-            setLoading(false);
-        })
-        .catch((error) => {
-            if (error.response?.status === 404) {
-                setData([]); // clear table
-                setSearchMessage("No user found with that email.");
-            } else {
-                setError("Something went wrong. Please try again.");
-            }
-            setLoading(false);
-        });
-
+            .then((res) => {
+                const user = res.data.response;
+                setData(user ? [user] : []);
+                setSearchMessage(user ? '' : "No user found with that email.");
+                setLoading(false);
+            })
+            .catch((error) => {
+                if (error.response?.status === 404) {
+                    setData([]);
+                    setSearchMessage("No user found with that email.");
+                } else {
+                    setError("Something went wrong. Please try again.");
+                }
+                setLoading(false);
+            });
     }
 
-    // Get ALL Users Api
     const handleUsersAll = (pageNum = 0) => {
-            setIsSearching(false);
-
+        setIsSearching(false);
         axios.get(`/api/user/get/all?page=${pageNum}&size=5`)
-        .then((userResponse) => {
-            setData(userResponse.data.response);
-            setTotalPages(userResponse.data.totalPages);
-            setPage(pageNum)
-            setLoading(false);
-        })
-        .catch((err) => {
-            setError(err);
-            setLoading(false);
-        });
+            .then((userResponse) => {
+                setData(userResponse.data.response);
+                setTotalPages(userResponse.data.totalPages);
+                setPage(pageNum);
+                setLoading(false);
+            })
+            .catch((err) => {
+                setError(err);
+                setLoading(false);
+            });
     }
 
-    // Add New User
     const handleAddUser = () => {
-
         setAddError(null);
+        setSubmitting(true);
 
         axios.post(`/api/user/post`, newUser)
-        .then((res) => {
-            if (res.data && res.data.status == "SUCCESS"){
-                alert(res.data.response);
-                handleUsersAll();
-                setShowAddForm(false);
-                setNewUser({username: '', email: '', password: '', role: 'USER'});
-            }else {
-                setAddError(res.data.response || "failed to add user.");
-            }
-        }).catch((err) => {
-            const message = err.response?.data?.response || "faild to add user"
-            setAddError(message);
-        })
+            .then((res) => {
+                if (res.data && res.data.status == "SUCCESS") {
+                    alert(res.data.response);
+                    handleUsersAll();
+                    setShowAddForm(false);
+                    setNewUser({ username: '', email: '', password: '', role: 'USER' });
+                } else {
+                    setAddError(res.data.response || "failed to add user.");
+                }
+            }).catch((err) => {
+                const message = err.response?.data?.response || "faild to add user"
+                setAddError(message);
+            }).finally(() => {
+                setSubmitting(false);
+            });
     }
 
-    // Edit user's data
     const handleEditUser = (id) => {
-        setEditError(null); // clear any previous error
-      
-        const payload = {
-          username: editUserData.username,
-          email: editUserData.email,
-          role: editUserData.role,
-        };
-      
-        if (editUserData.password) {
-          payload.password = editUserData.password;
-        }
-      
-        axios.patch(`/api/user/edit/${id}`, payload)
-          .then((res) => {
-            if (res.data.status === "SUCCESS") {
-              alert("User updated successfully!");
-              handleUsersAll();
-              setShowEditForm(false);
-              setSelectedUser(null);
-            } else {
-              setEditError(res.data.response || "Failed to update user.");
-            }
-          })
-          .catch((err) => {
-            const message = err.response?.data?.response || "Error updating user.";
-            setEditError(message);
-          });
-      };
-      
-    // Delete User Api
-    const deleteUser = (id) => {
+        const confirmEdit = window.confirm("Are you sure you want to save the changes?");
+        if (!confirmEdit) return;
 
+        setEditError(null);
+        setSubmitting(true);
+
+        const payload = {
+            username: editUserData.username,
+            email: editUserData.email,
+            role: editUserData.role,
+        };
+
+        if (editUserData.password) {
+            payload.password = editUserData.password;
+        }
+
+        axios.patch(`/api/user/edit/${id}`, payload)
+            .then((res) => {
+                if (res.data.status === "SUCCESS") {
+                    alert("User updated successfully!");
+                    handleUsersAll();
+                    setShowEditForm(false);
+                    setSelectedUser(null);
+                } else {
+                    setEditError(res.data.response || "Failed to update user.");
+                }
+            })
+            .catch((err) => {
+                const message = err.response?.data?.response || "Error updating user.";
+                setEditError(message);
+            }).finally(() => {
+                setSubmitting(false);
+            });
+    }
+
+    const deleteUser = (id) => {
         const confirmDelete = window.confirm("are you sure you want to delete the user?")
         if (!confirmDelete) return;
 
         axios.delete(`/api/user/delete/${id}`)
-        .then((userResponse) => {
-            setData(prevData => prevData.filter(user => user.id !== id))
+            .then((userResponse) => {
+                setData(prevData => prevData.filter(user => user.id !== id))
 
-            if (userResponse.data && userResponse.data.status == "SUCCESS"){
-                
-                alert(userResponse.data.response);
-                handleUsersAll();
-
-            }else{
-                alert("Unexpected response from server.")
-            }
-        })
-        .catch((err) => {
-            setError(err);
-        })};
-
+                if (userResponse.data && userResponse.data.status == "SUCCESS"){
+                    alert(userResponse.data.response);
+                    handleUsersAll();
+                } else {
+                    alert("Unexpected response from server.")
+                }
+            })
+            .catch((err) => {
+                setError(err);
+            })
+    }
 
     useEffect(() => {
         handleUsersAll();
@@ -182,22 +176,23 @@ function UsersSubPage() {
             <div className="upper-part">
 
                 <form typeof='submit' method='GET' className="search" onSubmit={handleSearch}>
-                    <input type="text" placeholder='Search by EMAIL'
+                    <input id="searchEmail" type="text" placeholder='Search by EMAIL'
                         value={searchEmail}
                         onChange={(e) => {
                             setSearchEmail(e.target.value);
-                
-                            // Optional: Reset results when user clears input
                             if (e.target.value.trim() === '') {
                                 handleUsersAll();
                             }
                         }}
                     />
+                    {searchEmail && (
+                        <button type="button" onClick={() => { setSearchEmail(''); handleUsersAll(); }}>✖</button>
+                    )}
                     <img src="/images/search_icon.png" alt="Search" onClick={handleSearch}/>
                 </form>
 
                 <p> Welcome to the Admin's Controller</p>
-                
+
                 <div className="AddNew">
                     <button className='green' onClick={() => setShowAddForm(true)} >Add New</button>
                 </div>
@@ -279,7 +274,7 @@ function UsersSubPage() {
                             <option value="LECTURER">LECTURER</option>
                         </select>
                         <div className="modal-actions">
-                            <button onClick={handleAddUser} className="green">Submit</button>
+                            <button onClick={handleAddUser} className="green" disabled={submitting}>Submit</button>
                             <button onClick={() => {setShowAddForm(false); setAddError(null)}} className="red">Cancel</button>
                         </div>
                     </div>
@@ -293,7 +288,6 @@ function UsersSubPage() {
                         <h2>Edit User</h2>
 
                         {editError && <p>{editError}</p>}
-
 
                         <input
                             type="text"
@@ -323,7 +317,7 @@ function UsersSubPage() {
                         </select>
 
                         <div className="modal-actions">
-                            <button onClick={() => handleEditUser(selectedUser.id)} className="green">Submit</button>
+                            <button onClick={() => handleEditUser(selectedUser.id)} className="green" disabled={submitting}>Submit</button>
                             <button onClick={() => {setShowEditForm(false); setSelectedUser(null); setEditError(null)}} className="red">Cancel</button>
                         </div>
                     </div>
