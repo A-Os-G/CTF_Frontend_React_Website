@@ -4,334 +4,211 @@ import axios from 'axios';
 
 function FeedbackSubPage() {
 
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
-    const [searchMessage, setSearchMessage] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
+const [feedbacks, setFeedbacks] = useState([]);
+  const [comment, setComment] = useState('');
+  const [challengeId, setChallengeId] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // GET all feedbacks (Admin View)
+  const fetchAllFeedbacks = (pageNum = 0) => {
+    setLoading(true);
+    setError(null);
 
 
+    axios.get(`/api/feedback/get/all?page=${pageNum}&size=5`)
+      .then(res => {
 
-    const [editError, setEditError] = useState(null);
-    const [showEditForm, setShowEditForm] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [editUserData, setEditUserData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER',
-    });
+        setFeedbacks(res.data.response);
+        setTotalPages(res.data.totalPages);
+        setPage(pageNum);
+      })
+      .catch(err => {
+        setError(err.response?.data?.response || 'Failed to fetch feedbacks');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
+  // GET feedbacks by challenge ID
+  const fetchFeedbacksByChallengeId = (name) => {
+    if (!name) return;
+    setLoading(true);
+    setError(null);
+    setIsSearching(true);
 
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [newUser, setNewUser] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER'
+    axios.get(`/api/feedback/get/challenge/${name}`)
+      .then(res => {
+        setFeedbacks(res.data.response);
+        setTotalPages(1);
+        setPage(0);
+      })
+      .catch(err => {
+        setError(err.response?.data?.response || 'Failed to fetch feedbacks for challenge');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
-    });
-    const [addError, setAddError] = useState(null);
+  // POST feedback
+  const handleAddFeedback = () => {
+    if (!comment.trim() || !challengeId) return alert("Comment and Challenge ID are required");
 
-    const [data, setData] = useState([]);
-    const [searchEmail,setSearchEmail] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    setLoading(true);
+    setError(null);
 
-    // Search Users By Email
-    const handleSearch = (e) => {
+    axios.post(`/api/feedback/post/${challengeId}`, { comment })
+      .then(res => {
+        alert(res.data.response);
+        fetchFeedbacksByChallengeId(challengeId);
+        setComment('');
+      })
+      .catch(err => {
+        setError(err.response?.data?.response || 'Failed to add feedback');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
-        e.preventDefault(); // prevent form reload
-        setIsSearching(true);
+  // DELETE feedback
+  const handleDeleteFeedback = (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this feedback?");
+    if (!confirmDelete) return;
 
-        const trimmedEmail = searchEmail.trim();
-    
-        // If input is empty or only spaces, reset to full list
-        if (!trimmedEmail) {
-            setIsSearching(false); // ← turn off search mode
-            handleUsersAll();
-            return;
-        }
-        
-    
-        setLoading(true);
-        setError(null);
+    setLoading(true);
+    setError(null);
 
-        setLoading(true);
-        axios.get(`/api/user/get/email/${trimmedEmail}`)
-        .then((res) => {
-            const user = res.data.response;
-            setData(user ? [user] : []);
-            setSearchMessage(user ? '' : "No user found with that email.");
-            setLoading(false);
-        })
-        .catch((error) => {
-            if (error.response?.status === 404) {
-                setData([]); // clear table
-                setSearchMessage("No user found with that email.");
-            } else {
-                setError("Something went wrong. Please try again.");
-            }
-            setLoading(false);
-        });
+    axios.delete(`/api/feedback/delete/${id}`)
+      .then(res => {
+        alert(res.data.response);
+        fetchAllFeedbacks();
+      })
+      .catch(err => {
+        setError(err.response?.data?.response || 'Failed to delete feedback');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
-    }
+//   Get challenge name by ID
+  const getChallengeNameById = (id) => {
+    return axios.get(`/api/challenge/get/${id}`)
+      .then(res => res.data.response.name)
+      .catch(err => {
+        console.error('Failed to fetch challenge name:', err);
+        return 'Unknown Challenge';
+      });
+  }
 
-    // Get ALL Users Api
-    const handleUsersAll = (pageNum = 0) => {
-            setIsSearching(false);
+// USE EFFECTS
 
-        axios.get(`/api/user/get/all?page=${pageNum}&size=5`)
-        .then((userResponse) => {
-            setData(userResponse.data.response);
-            setTotalPages(userResponse.data.totalPages);
-            setPage(pageNum)
-            setLoading(false);
-        })
-        .catch((err) => {
-            setError(err);
-            setLoading(false);
-        });
-    }
-
-    // Add New User
-    const handleAddUser = () => {
-
-        setAddError(null);
-
-        axios.post(`/api/user/post`, newUser)
-        .then((res) => {
-            if (res.data && res.data.status == "SUCCESS"){
-                alert(res.data.response);
-                handleUsersAll();
-                setShowAddForm(false);
-                setNewUser({username: '', email: '', password: '', role: 'USER'});
-            }else {
-                setAddError(res.data.response || "failed to add user.");
-            }
-        }).catch((err) => {
-            const message = err.response?.data?.response || "faild to add user"
-            setAddError(message);
-        })
-    }
-
-    // Edit user's data
-    const handleEditUser = (id) => {
-        setEditError(null); // clear any previous error
-      
-        const payload = {
-          username: editUserData.username,
-          email: editUserData.email,
-          role: editUserData.role,
-        };
-      
-        if (editUserData.password) {
-          payload.password = editUserData.password;
-        }
-      
-        axios.patch(`/api/user/edit/${id}`, payload)
-          .then((res) => {
-            if (res.data.status === "SUCCESS") {
-              alert("User updated successfully!");
-              handleUsersAll();
-              setShowEditForm(false);
-              setSelectedUser(null);
-            } else {
-              setEditError(res.data.response || "Failed to update user.");
-            }
-          })
-          .catch((err) => {
-            const message = err.response?.data?.response || "Error updating user.";
-            setEditError(message);
-          });
-      };
-      
-    // Delete User Api
-    const deleteUser = (id) => {
-
-        const confirmDelete = window.confirm("are you sure you want to delete the user?")
-        if (!confirmDelete) return;
-
-        axios.delete(`/api/user/delete/${id}`)
-        .then((userResponse) => {
-            setData(prevData => prevData.filter(user => user.id !== id))
-
-            if (userResponse.data && userResponse.data.status == "SUCCESS"){
-                
-                alert(userResponse.data.response);
-                handleUsersAll();
-
-            }else{
-                alert("Unexpected response from server.")
-            }
-        })
-        .catch((err) => {
-            setError(err);
-        })};
-
-
+    // Render All
     useEffect(() => {
-        handleUsersAll();
-    },[]);
+        fetchAllFeedbacks();
+    }, []);
 
-    if (loading) return <div>Loading ...</div>;
-    if (error) return <div>Error: {error?.message || "Something went wrong"}</div>;
+    // Keyboard Friendly
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Escape') {
+                setShowAddForm(false);
+                setEditCategory(null);
+                setAddError(null);
+                setEditError(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyPress);
+        return () => document.removeEventListener('keydown', handleKeyPress);
+    }, []);
 
-    return ( 
+// Loading Handle
+    if (loading) return (
+        <div className='loading'>
+            <div className="spinner" />
+            <p>Loading, please wait...</p>
+        </div>
+    );
+
+//   Error Handle
+    if (error) return (
+        <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
+            <strong>Error:</strong> {error}
+        </div>
+    );
+
+     return (
         <div className="admin-layout">
-
             <div className="upper-part">
-
-                <form typeof='submit' method='GET' className="search" onSubmit={handleSearch}>
-                    <input type="text" placeholder='Search by EMAIL'
-                        value={searchEmail}
-                        onChange={(e) => {
-                            setSearchEmail(e.target.value);
-                
-                            // Optional: Reset results when user clears input
+                <form className="search" onSubmit={(e) => { e.preventDefault(); fetchFeedbacksByChallengeId(searchTerm); }}>
+                    <input
+                        type="text"
+                        placeholder="by Challenge Name"
+                        value={searchTerm}
+                        onChange={(e) => {setSearchTerm(e.target.value)
                             if (e.target.value.trim() === '') {
-                                handleUsersAll();
+                                fetchAllFeedbacks();
                             }
                         }}
                     />
-                    <img src="/images/search_icon.png" alt="Search" onClick={handleSearch}/>
+                    {searchTerm && <button type="button" onClick={() => { setSearchTerm(''); setIsSearching(false); fetchAllFeedbacks(); }}>✖</button>}
+                    <img src="/images/search_icon.png" alt="Search" onClick={() => fetchFeedbacksByChallengeId(searchTerm)} />
                 </form>
 
-                <p> Welcome to the Admin's Controller</p>
-                
-                <div className="AddNew">
-                    <button className='green' onClick={() => setShowAddForm(true)} >Add New</button>
-                </div>
-
+                <p>Feedback Management</p>
+                  
             </div>
 
             <div className="data-table">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Time</th>
-                            <th>Actions</th>
-                        </tr>
-                   </thead>
-
-                    <tbody>
-                    {data.length > 0 ? (
-                        data.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.username}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>{new Date(user.regDateAndTime).toLocaleString()}</td>
-                                <td> <button className='green' onClick={() => { setSelectedUser(user); setEditUserData({ username: user.username, email: user.email,password: '', role: user.role}); setShowEditForm(true);}}>Edit</button>
-                                    <button className='red' onClick={() => deleteUser(user.id)}>Delete</button></td></tr>
+                <thead>
+                    <tr>
+                        <th>Comment</th>
+                        <th>challenge</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {feedbacks.length > 0 ? (
+                        feedbacks.map((fb) => (
+                            <tr key={fb.id}>
+                            <td>{fb.comment}</td>
+                            <td>{fb.challengeName}</td>
+                            <td>
+                                <button className='red' onClick={() => handleDeleteFeedback(fb.id)}>Delete</button>
+                            </td>
+                            </tr>
                         ))
-                    ) : (
+                        ) : (
                         <tr>
-                            <td colSpan="5" style={{ textAlign: "center", padding: "1rem" }}>
-                                {searchMessage || "No users available."}
+                            <td colSpan="3" style={{ textAlign: "center", padding: "1rem" }}>
+                            {searchTerm ? "No feedback found for this challenge." : "No feedback available."}
                             </td>
                         </tr>
-                    )}
-                    </tbody>
+                        )}
+
+                </tbody>
                 </table>
             </div>
 
-            {!isSearching && <div className="pagination">
-                <button className="green" disabled={page === 0} onClick={() => handleUsersAll(page - 1)}>{`<`}</button>
+            {!isSearching && (
+                <div className="pagination">
+                <button className="green" disabled={page === 0} onClick={() => fetchAllFeedbacks(page - 1)}>{`<`}</button>
                 <span>Page {page + 1} of {totalPages}</span>
-                <button className="green" disabled={page + 1 >= totalPages} onClick={() => handleUsersAll(page + 1)}>{`>`}</button>
-            </div>}
-
-
-{/* Add modal */}
-            {showAddForm && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <h2>Add New User</h2>
-
-                        {addError && <p>{addError}</p>}
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            value={newUser.username}
-                            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={newUser.email}
-                            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={newUser.password}
-                            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                        />
-                        <select
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                        >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
-                        </select>
-                        <div className="modal-actions">
-                            <button onClick={handleAddUser} className="green">Submit</button>
-                            <button onClick={() => {setShowAddForm(false); setAddError(null)}} className="red">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-                )}
-
-{/* Edit Modal */}
-            {showEditForm && selectedUser && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <h2>Edit User</h2>
-
-                        {editError && <p>{editError}</p>}
-
-
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            value={editUserData.username}
-                            onChange={(e) => setEditUserData({ ...editUserData, username: e.target.value })}
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={editUserData.email}
-                            onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
-                        />
-                        <input
-                            type="password"
-                            placeholder="New Password (leave blank to keep current)"
-                            value={editUserData.password}
-                            onChange={(e) => setEditUserData({ ...editUserData, password: e.target.value })}
-                        />
-                        <select
-                            value={editUserData.role}
-                            onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
-                        >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
-                        </select>
-
-                        <div className="modal-actions">
-                            <button onClick={() => handleEditUser(selectedUser.id)} className="green">Submit</button>
-                            <button onClick={() => {setShowEditForm(false); setSelectedUser(null); setEditError(null)}} className="red">Cancel</button>
-                        </div>
-                    </div>
+                <button className="green" disabled={page + 1 >= totalPages} onClick={() => fetchAllFeedbacks(page + 1)}>{`>`}</button>
                 </div>
             )}
+            </div>
+        );
+    }
 
-        </div>
-     );
-}
 
 export default FeedbackSubPage;

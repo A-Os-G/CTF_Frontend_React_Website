@@ -4,204 +4,285 @@ import axios from 'axios';
 
 function ChallengesSubPage() {
 
+// Pagination
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
+
+// Handle Search
+    const [searchName, setSearchName] = useState('');
     const [searchMessage, setSearchMessage] = useState('');
     const [isSearching, setIsSearching] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('');
 
-
-
-    const [editError, setEditError] = useState(null);
+// Edit Challenge
+    const [selectedChallenge, setSelectedChallenge] = useState(null);
+    const [editChallengeData, setEditChallengeData] = useState({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: ''  });
     const [showEditForm, setShowEditForm] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [editUserData, setEditUserData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER',
-    });
+    const [editError, setEditError] = useState(null);
 
-
+// Add Challenge
+    const [newChallenge, setNewChallenge] = useState({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: '' });
     const [showAddForm, setShowAddForm] = useState(false);
-    const [newUser, setNewUser] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER'
-
-    });
     const [addError, setAddError] = useState(null);
 
+// Get Challenge
     const [data, setData] = useState([]);
-    const [searchEmail,setSearchEmail] = useState('');
+
+// delete Challenge
+    const [deleteError, setDeleteError] = useState(null);
+
+// Others
+    const [categories, setCategories] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Search Users By Email
+
+// API Handles
+
+    // Search Api
     const handleSearch = (e) => {
-
-        e.preventDefault(); // prevent form reload
+        e.preventDefault();
         setIsSearching(true);
+        const trimmedName = searchName.trim();
 
-        const trimmedEmail = searchEmail.trim();
-    
-        // If input is empty or only spaces, reset to full list
-        if (!trimmedEmail) {
-            setIsSearching(false); // ← turn off search mode
-            handleUsersAll();
+        if (!trimmedName) {
+            setIsSearching(false);
+            handleChallengesAll();
             return;
         }
-        
-    
+
         setLoading(true);
         setError(null);
 
-        setLoading(true);
-        axios.get(`/api/user/get/email/${trimmedEmail}`)
+        axios.get(`/api/challenge/get/name/${trimmedName}`)
+            .then((res) => {
+                const challenge = res.data.response;
+                setData(challenge ? [challenge] : []);
+                setSearchMessage(challenge ? '' : "No challenge found with that name.");
+                setLoading(false);
+            })
+            .catch((error) => {
+                if (error.response?.status === 404) {
+                    setData([]);
+                    setSearchMessage("No challenge found with that name.");
+                } else {
+                    setError("Something went wrong. Please try again.");
+                }
+                setLoading(false);
+            });
+    };
+
+    // GET ALL Api
+    const handleChallengesAll = (pageNum = 0) => {
+        setIsSearching(false);
+        axios.get(`/api/challenge/get/all?page=${pageNum}&size=5`)
+            .then((res) => {
+                setData(res.data.response);
+                setTotalPages(res.data.totalPages);
+                setPage(pageNum);
+                setLoading(false);
+            })
+            .catch((err) => {
+                setError(err);
+                setLoading(false);
+            });
+    };
+
+    // POST Api
+    const handleAddChallenge = () => {
+        setAddError(null);
+        setSubmitting(true);
+
+        const payload = {
+            name: newChallenge.name,
+            description: newChallenge.description,
+            flag: newChallenge.flag,
+            difficulty: newChallenge.difficulty,
+            hint1: newChallenge.hint1,
+            hint2: newChallenge.hint2
+        };
+
+        console.log(payload);
+
+        axios.post(`/api/challenge/post/${newChallenge.categoryId}`, payload)
+            .then((res) => {
+                if (res.data.status === "SUCCESS") {
+                    alert(res.data.response);
+                    handleChallengesAll();
+                    setShowAddForm(false);
+                    setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: '' });
+                } else {
+                    setAddError(res.data.response || "Failed to add challenge.");
+                }
+            })
+            .catch((err) => {
+                const message = err.response?.data?.response || "Failed to add challenge.";
+                setAddError(message);
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
+    };
+
+    // PUT Api
+    const handleEditChallenge = (id) => {
+    setEditError(null);
+    setSubmitting(true);
+
+    const payload = {
+        name: editChallengeData.name,
+        description: editChallengeData.description,
+        flag: editChallengeData.flag,
+        difficulty: editChallengeData.difficulty,
+        hint1: editChallengeData.hint1,
+        hint2: editChallengeData.hint2
+    };
+
+    axios.patch(`/api/challenge/put/${id}?catid=${editChallengeData.categoryId}`, payload)
         .then((res) => {
-            const user = res.data.response;
-            setData(user ? [user] : []);
-            setSearchMessage(user ? '' : "No user found with that email.");
-            setLoading(false);
-        })
-        .catch((error) => {
-            if (error.response?.status === 404) {
-                setData([]); // clear table
-                setSearchMessage("No user found with that email.");
+            if (res.data.status === "SUCCESS") {
+                alert(res.data.response);
+                handleChallengesAll();
+                setShowEditForm(false);
+                setSelectedChallenge(null);
             } else {
-                setError("Something went wrong. Please try again.");
+                setEditError(res.data.response || "Failed to update challenge.");
             }
-            setLoading(false);
-        });
-
-    }
-
-    // Get ALL Users Api
-    const handleUsersAll = (pageNum = 0) => {
-            setIsSearching(false);
-
-        axios.get(`/api/user/get/all?page=${pageNum}&size=5`)
-        .then((userResponse) => {
-            setData(userResponse.data.response);
-            setTotalPages(userResponse.data.totalPages);
-            setPage(pageNum)
-            setLoading(false);
         })
         .catch((err) => {
-            setError(err);
-            setLoading(false);
-        });
-    }
-
-    // Add New User
-    const handleAddUser = () => {
-
-        setAddError(null);
-
-        axios.post(`/api/user/post`, newUser)
-        .then((res) => {
-            if (res.data && res.data.status == "SUCCESS"){
-                alert(res.data.response);
-                handleUsersAll();
-                setShowAddForm(false);
-                setNewUser({username: '', email: '', password: '', role: 'USER'});
-            }else {
-                setAddError(res.data.response || "failed to add user.");
-            }
-        }).catch((err) => {
-            const message = err.response?.data?.response || "faild to add user"
-            setAddError(message);
-        })
-    }
-
-    // Edit user's data
-    const handleEditUser = (id) => {
-        setEditError(null); // clear any previous error
-      
-        const payload = {
-          username: editUserData.username,
-          email: editUserData.email,
-          role: editUserData.role,
-        };
-      
-        if (editUserData.password) {
-          payload.password = editUserData.password;
-        }
-      
-        axios.patch(`/api/user/edit/${id}`, payload)
-          .then((res) => {
-            if (res.data.status === "SUCCESS") {
-              alert("User updated successfully!");
-              handleUsersAll();
-              setShowEditForm(false);
-              setSelectedUser(null);
-            } else {
-              setEditError(res.data.response || "Failed to update user.");
-            }
-          })
-          .catch((err) => {
-            const message = err.response?.data?.response || "Error updating user.";
+            const message = err.response?.data?.response || "Error updating challenge.";
             setEditError(message);
-          });
-      };
-      
-    // Delete User Api
-    const deleteUser = (id) => {
+        })
+        .finally(() => {
+            setSubmitting(false);
+        });
+    };
 
-        const confirmDelete = window.confirm("are you sure you want to delete the user?")
+    // DETETE Api
+    const handleDeleteChallenge = (id) => {
+        setDeleteError(null);
+        const confirmDelete = window.confirm("Are you sure you want to delete this challenge?");
         if (!confirmDelete) return;
 
-        axios.delete(`/api/user/delete/${id}`)
-        .then((userResponse) => {
-            setData(prevData => prevData.filter(user => user.id !== id))
-
-            if (userResponse.data && userResponse.data.status == "SUCCESS"){
+        axios.delete(`/api/challenge/delete/${id}`)
+            .then((res) => {
+                alert(res.data.response);
+                setData(prev => prev.filter(challenge => challenge.id !== id));
                 
-                alert(userResponse.data.response);
-                handleUsersAll();
+            })
+            .catch(err => {
+                setDeleteError(err.response?.data?.response || 'Failed to delete challenge.');
+            });
+    };
 
-            }else{
-                alert("Unexpected response from server.")
+    // SORT Categories
+    const handleCategoryFilter = (categoryId) => {
+        setSelectedCategory(categoryId);
+        if (categoryId === '') {
+            handleChallengesAll();
+        } else {
+            const selected = categories.find(c => c.id.toString() === categoryId);
+            if (selected) {
+                axios.get(`/api/challenge/get/category/${selected.type}`)
+                    .then((res) => {
+                        setData(res.data.response);
+                        setTotalPages(1);
+                        setPage(0);
+                        setIsSearching(true);
+                        setSearchMessage(res.data.response.length === 0 ? 'No challenges in this category.' : '');
+                    })
+                    .catch((err) => {
+                        setError('Failed to fetch category challenges.');
+                    });
             }
-        })
-        .catch((err) => {
-            setError(err);
-        })};
+        }
+    };
 
+// Use Effects
 
+    // Render All
     useEffect(() => {
-        handleUsersAll();
-    },[]);
+        handleChallengesAll();
+    }, []);
 
-    if (loading) return <div>Loading ...</div>;
-    if (error) return <div>Error: {error?.message || "Something went wrong"}</div>;
+    // Keyboard Friendly
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Escape') {
+                setShowAddForm(false);
+                setShowEditForm(false);
+                setSelectedChallenge(null);
+                setAddError(null);
+                setEditError(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyPress);
+        return () => document.removeEventListener('keydown', handleKeyPress);
+    }, []);
 
-    return ( 
+    // Get all Categories
+    useEffect(() => {
+        axios.get('/api/category/get/all')
+            .then((res) => {
+                setCategories(res.data.response);
+            })
+            .catch((err) => {
+                console.error("Failed to load categories", err);
+            });
+    }, []);
+
+
+// Loading Handle
+    if (loading) return (
+        <div className='loading'>
+            <div className="spinner" />
+            <p>Loading, please wait...</p>
+        </div>
+      );
+      
+//   Error Handle
+    if (error) return (
+        <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
+            <strong>Error:</strong> {error}
+        </div>
+    );
+
+    return (
         <div className="admin-layout">
-
             <div className="upper-part">
-
-                <form typeof='submit' method='GET' className="search" onSubmit={handleSearch}>
-                    <input type="text" placeholder='Search by EMAIL'
-                        value={searchEmail}
+                <form className="search" onSubmit={handleSearch}>
+                    <input
+                        type="text"
+                        placeholder="Search by Name"
+                        value={searchName}
                         onChange={(e) => {
-                            setSearchEmail(e.target.value);
-                
-                            // Optional: Reset results when user clears input
+                            setSearchName(e.target.value)
                             if (e.target.value.trim() === '') {
-                                handleUsersAll();
+                                handleChallengesAll();
                             }
                         }}
                     />
-                    <img src="/images/search_icon.png" alt="Search" onClick={handleSearch}/>
+                    {searchName && <button type="button" onClick={() => { setSearchName(''); handleChallengesAll(); }}>✖</button>}
+                    <img src="/images/search_icon.png" alt="Search" onClick={handleSearch} />
                 </form>
 
-                <p> Welcome to the Admin's Controller</p>
-                
-                <div className="AddNew">
-                    <button className='green' onClick={() => setShowAddForm(true)} >Add New</button>
-                </div>
 
+                <p> Challenge Management </p>
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => handleCategoryFilter(e.target.value)}
+                        className="category-filter styled-dropdown"
+                    >
+                        <option value="">All Categories</option>
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.type}</option>
+                    ))}
+                </select>
+
+                <div className="AddNew">
+                    <button className='green' onClick={() => setShowAddForm(true)}>Add New</button>
+                </div>
             </div>
 
             <div className="data-table">
@@ -209,129 +290,196 @@ function ChallengesSubPage() {
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Time</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Difficulty</th>
+                            <th>Flag</th>
+                            <th>Hint 1</th>
+                            <th>Hint 2</th>
                             <th>Actions</th>
                         </tr>
-                   </thead>
-
+                    </thead>
                     <tbody>
-                    {data.length > 0 ? (
-                        data.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.username}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>{new Date(user.regDateAndTime).toLocaleString()}</td>
-                                <td> <button className='green' onClick={() => { setSelectedUser(user); setEditUserData({ username: user.username, email: user.email,password: '', role: user.role}); setShowEditForm(true);}}>Edit</button>
-                                    <button className='red' onClick={() => deleteUser(user.id)}>Delete</button></td></tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="5" style={{ textAlign: "center", padding: "1rem" }}>
-                                {searchMessage || "No users available."}
-                            </td>
-                        </tr>
-                    )}
+                        {data.length > 0 ? (
+                            data.map((challenge) => (
+                                <tr key={challenge.id}>
+                                    <td>{challenge.name}</td>
+                                    <td>{challenge.description}</td>
+                                    <td>{challenge.category.type}</td>
+                                    <td>{challenge.difficulty}</td>
+                                    <td>{challenge.flag}</td>
+                                    <td>{challenge.hint1}</td>
+                                    <td>{challenge.hint2}</td>
+                                    <td>
+                                        <button className='green' onClick={() => {
+                                            setSelectedChallenge(challenge);
+                                            setEditChallengeData({
+                                                name: challenge.name,
+                                                description: challenge.description,
+                                                flag: challenge.flag,
+                                                difficulty: challenge.difficulty,
+                                                hint1: challenge.hint1,
+                                                hint2: challenge.hint2,
+                                                categoryId: challenge.category?.id
+                                            });
+                                            setShowEditForm(true);
+                                        }}>Edit</button>
+                                        <button className='red' onClick={() => handleDeleteChallenge(challenge.id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="8" style={{ textAlign: "center", padding: "1rem" }}>
+                                    {searchMessage || "No challenges available."}
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
 
             {!isSearching && <div className="pagination">
-                <button className="green" disabled={page === 0} onClick={() => handleUsersAll(page - 1)}>{`<`}</button>
+                <button className="green" disabled={page === 0} onClick={() => handleChallengesAll(page - 1)}>{`<`}</button>
                 <span>Page {page + 1} of {totalPages}</span>
-                <button className="green" disabled={page + 1 >= totalPages} onClick={() => handleUsersAll(page + 1)}>{`>`}</button>
+                <button className="green" disabled={page + 1 >= totalPages} onClick={() => handleChallengesAll(page + 1)}>{`>`}</button>
             </div>}
 
-
-{/* Add modal */}
-            {showAddForm && (
+    {/* Add Model */}
+           {showAddForm && (
                 <div className="modal-backdrop">
-                    <div className="modal">
-                        <h2>Add New User</h2>
+                    <form className="modal" onSubmit={(e) => { e.preventDefault(); handleAddChallenge(); }}>
+                        <h2>Add New Challenge</h2>
 
                         {addError && <p>{addError}</p>}
                         <input
                             type="text"
-                            placeholder="Username"
-                            value={newUser.username}
-                            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                            placeholder="Name"
+                            value={newChallenge.name}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, name: e.target.value })}
                         />
                         <input
-                            type="email"
-                            placeholder="Email"
-                            value={newUser.email}
-                            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                            type="text"
+                            placeholder="Description"
+                            value={newChallenge.description}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, description: e.target.value })}
                         />
                         <input
-                            type="password"
-                            placeholder="Password"
-                            value={newUser.password}
-                            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                            type="text"
+                            placeholder="Flag"
+                            value={newChallenge.flag}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, flag: e.target.value })}
                         />
                         <select
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                            value={newChallenge.difficulty}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, difficulty: e.target.value })}
                         >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
+                            <option value="EASY">EASY</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="HARD">HARD</option>
                         </select>
-                        <div className="modal-actions">
-                            <button onClick={handleAddUser} className="green">Submit</button>
-                            <button onClick={() => {setShowAddForm(false); setAddError(null)}} className="red">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-                )}
-
-{/* Edit Modal */}
-            {showEditForm && selectedUser && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <h2>Edit User</h2>
-
-                        {editError && <p>{editError}</p>}
-
+                        <select
+                            value={newChallenge.categoryId}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, categoryId: e.target.value })}
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            {categories.map((cat) => (
+                                <option key={cat.id} value={cat.id}>{cat.type}</option>
+                            ))}
+                        </select>
 
                         <input
                             type="text"
-                            placeholder="Username"
-                            value={editUserData.username}
-                            onChange={(e) => setEditUserData({ ...editUserData, username: e.target.value })}
+                            placeholder="Hint 1"
+                            value={newChallenge.hint1}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, hint1: e.target.value })}
                         />
                         <input
-                            type="email"
-                            placeholder="Email"
-                            value={editUserData.email}
-                            onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
+                            type="text"
+                            placeholder="Hint 2"
+                            value={newChallenge.hint2}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, hint2: e.target.value })}
                         />
-                        <input
-                            type="password"
-                            placeholder="New Password (leave blank to keep current)"
-                            value={editUserData.password}
-                            onChange={(e) => setEditUserData({ ...editUserData, password: e.target.value })}
-                        />
-                        <select
-                            value={editUserData.role}
-                            onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
-                        >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
-                        </select>
 
                         <div className="modal-actions">
-                            <button onClick={() => handleEditUser(selectedUser.id)} className="green">Submit</button>
-                            <button onClick={() => {setShowEditForm(false); setSelectedUser(null); setEditError(null)}} className="red">Cancel</button>
+                            <button type="submit" className="green" disabled={submitting}>Submit</button>
+                            <button type="button" onClick={() => { setShowAddForm(false); setAddError(null); setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: '' }) }} className="red">Cancel</button>
                         </div>
-                    </div>
+                    </form>
+                </div>
+            )}
+
+
+    {/* Edit Model */}  
+            {showEditForm && selectedChallenge && (
+                <div className="modal-backdrop">
+                    <form className="modal" onSubmit={(e) => { e.preventDefault(); handleEditChallenge(selectedChallenge.id); }}>
+                        <h2>Edit Challenge</h2>
+
+                        {editError && <p>{editError}</p>}
+                        <input
+                            type="text"
+                            placeholder="Name"
+                            value={editChallengeData.name}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, name: e.target.value })}
+                        />
+                        <input
+                            type="text"
+
+                            placeholder="Description"
+                            value={editChallengeData.description}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, description: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Flag"
+                            value={editChallengeData.flag}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, flag: e.target.value })}
+                        />
+                        <select
+                            value={editChallengeData.difficulty}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, difficulty: e.target.value })}
+                        >
+                            <option value="EASY">EASY</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="HARD">HARD</option>
+                        </select>
+
+                        <select
+                            value={editChallengeData.categoryId}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, categoryId: e.target.value })}
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            {categories.map((cat) => (
+                                <option key={cat.id} value={cat.id}>{cat.type}</option>
+                            ))}
+                        </select>
+
+                        <input
+                            type="text"
+                            placeholder="Hint 1"
+                            value={editChallengeData.hint1}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, hint1: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Hint 2"
+                            value={editChallengeData.hint2}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, hint2: e.target.value })}
+                        />
+
+                        <div className="modal-actions">
+                            <button type="submit" className="green" disabled={submitting}>Submit</button>
+                            <button type="button" onClick={() => { setShowEditForm(false); setSelectedChallenge(null); setEditError(null); }} className="red">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             )}
 
         </div>
-     );
+    );
 }
 
 export default ChallengesSubPage;

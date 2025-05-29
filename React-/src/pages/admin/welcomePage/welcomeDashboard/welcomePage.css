@@ -5,7 +5,7 @@
     margin: 2rem;
     /* overflow: hidden; */
     letter-spacing: 0.3rem;
-    min-height: 90vh;
+    min-height: 85vh;
 }
 
 .welcome-Header{
@@ -47,7 +47,7 @@
 }
 .welcome-subHeader{
     margin: 1rem;
-    margin-bottom: 3rem;
+    /* margin-bottom: 3rem; */
 }
 .welcome-subHeader > h2{
     margin-bottom: 0.3rem;

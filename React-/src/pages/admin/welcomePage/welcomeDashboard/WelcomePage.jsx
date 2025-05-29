@@ -6,6 +6,7 @@ function WelcomePage() {
   const [userCount, setUserCount] = useState(0);
   const [challengeCount, setChallengeCount] = useState(0);
   const [categoryCount, setCategoryCount] = useState(0);
+  const [feedbackCount, setFeedbackCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -14,12 +15,14 @@ function WelcomePage() {
     Promise.all([
       axios.get('/api/user/total'),
       axios.get('/api/challenge/total'),
-      axios.get('/api/category/total')
+      axios.get('/api/category/total'),
+      axios.get('/api/feedback/total')
     ])
-      .then(([userRes, challengeRes, categoryRes]) => {
+      .then(([userRes, challengeRes, categoryRes, feedbackRes]) => {
         setUserCount(userRes.data);
         setChallengeCount(challengeRes.data);
         setCategoryCount(categoryRes.data);
+        setFeedbackCount(feedbackRes.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -28,8 +31,19 @@ function WelcomePage() {
       });
   }, []);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+
+    if (loading) return (
+        <div className='loading'>
+            <div className="spinner" />
+            <p>Loading, please wait...</p>
+        </div>
+      );
+      
+      if (error) return (
+        <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
+          <strong>Error:</strong> {error}
+        </div>
+      );
 
   return (
     <div className="welcome-Section">
@@ -56,13 +70,13 @@ function WelcomePage() {
 
         <div className="counter">
           <h4>Total Feedback</h4>
-          <p>00,000</p> {/* You can fetch this similarly later */}
+          <p>{feedbackCount}</p>
         </div>
       </div>
 
       <div className="welcome-subHeader">
         <h2>Please use the nav-bar above to navigate.</h2>
-        <a href="">
+        <a href="/">
           <h3>Or click to go to User web page.</h3>
         </a>
       </div>

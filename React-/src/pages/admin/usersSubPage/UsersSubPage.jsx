@@ -1,43 +1,42 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import '../../../components/AdminSubPageLayout/adminSubPageLayout.css';
 import axios from 'axios';
 
 function UsersSubPage() {
+    
+// Pagination
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
+    
+// Handle Search
+    const [searchEmail, setSearchEmail] = useState('');
     const [searchMessage, setSearchMessage] = useState('');
     const [isSearching, setIsSearching] = useState(false);
-    const [editError, setEditError] = useState(null);
-    const [showEditForm, setShowEditForm] = useState(false);
+    
+// Edit User
     const [selectedUser, setSelectedUser] = useState(null);
     const [editUserData, setEditUserData] = useState({ username: '', email: '', password: '', role: 'USER' });
-    const [showAddForm, setShowAddForm] = useState(false);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [editError, setEditError] = useState(null);
+    
+// Add User
     const [newUser, setNewUser] = useState({ username: '', email: '', password: '', role: 'USER' });
+    const [showAddForm, setShowAddForm] = useState(false);
     const [addError, setAddError] = useState(null);
+    
+// Get User
     const [data, setData] = useState([]);
-    const [searchEmail, setSearchEmail] = useState('');
+    
+// Others
+    const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
 
-    useEffect(() => {
-        const handleKeyPress = (e) => {
-            if (e.key === 'Escape') {
-                setShowAddForm(false);
-                setShowEditForm(false);
-                setSelectedUser(null);
-                setAddError(null);
-                setEditError(null);
-            }
-            if (e.key === 'Enter') {
-                if (showAddForm && !submitting) handleAddUser();
-                if (showEditForm && !submitting && selectedUser) handleEditUser(selectedUser.id);
-            }
-        };
-        document.addEventListener('keydown', handleKeyPress);
-        return () => document.removeEventListener('keydown', handleKeyPress);
-    }, [showAddForm, showEditForm, selectedUser, submitting]);
 
+// API Handles
+
+    // Search Api
     const handleSearch = (e) => {
         e.preventDefault();
         setIsSearching(true);
@@ -70,6 +69,7 @@ function UsersSubPage() {
             });
     }
 
+    // GET ALL Api
     const handleUsersAll = (pageNum = 0) => {
         setIsSearching(false);
         axios.get(`/api/user/get/all?page=${pageNum}&size=5`)
@@ -85,6 +85,7 @@ function UsersSubPage() {
             });
     }
 
+    // POST Api
     const handleAddUser = () => {
         setAddError(null);
         setSubmitting(true);
@@ -107,6 +108,7 @@ function UsersSubPage() {
             });
     }
 
+    // PUT Api
     const handleEditUser = (id) => {
         const confirmEdit = window.confirm("Are you sure you want to save the changes?");
         if (!confirmEdit) return;
@@ -143,6 +145,7 @@ function UsersSubPage() {
             });
     }
 
+    // DETETE Api
     const deleteUser = (id) => {
         const confirmDelete = window.confirm("are you sure you want to delete the user?")
         if (!confirmDelete) return;
@@ -163,12 +166,44 @@ function UsersSubPage() {
             })
     }
 
+
+// USE EFFECTS
+
+    // Render All
     useEffect(() => {
         handleUsersAll();
     },[]);
+    
+    // Keyboard Friendly
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Escape') {
+                setShowAddForm(false);
+                setShowEditForm(false);
+                setSelectedUser(null);
+                setAddError(null);
+                setEditError(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyPress);
+        return () => document.removeEventListener('keydown', handleKeyPress);
+    }, []);
 
-    if (loading) return <div>Loading ...</div>;
-    if (error) return <div>Error: {error?.message || "Something went wrong"}</div>;
+// Loading Handle
+    if (loading) return (
+        <div className='loading'>
+            <div className="spinner" />
+            <p>Loading, please wait...</p>
+        </div>
+      );
+      
+//   Error Handle
+    if (error) return (
+    <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
+        <strong>Error:</strong> {error}
+    </div>
+    );
+      
 
     return ( 
         <div className="admin-layout">
@@ -191,7 +226,7 @@ function UsersSubPage() {
                     <img src="/images/search_icon.png" alt="Search" onClick={handleSearch}/>
                 </form>
 
-                <p> Welcome to the Admin's Controller</p>
+                <p> User Management </p>
 
                 <div className="AddNew">
                     <button className='green' onClick={() => setShowAddForm(true)} >Add New</button>
@@ -243,7 +278,14 @@ function UsersSubPage() {
 {/* Add modal */}
             {showAddForm && (
                 <div className="modal-backdrop">
-                    <div className="modal">
+                    <form
+                    
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleEditUser();
+                        }}
+
+                        className="modal">
                         <h2>Add New User</h2>
 
                         {addError && <p>{addError}</p>}
@@ -275,16 +317,22 @@ function UsersSubPage() {
                         </select>
                         <div className="modal-actions">
                             <button onClick={handleAddUser} className="green" disabled={submitting}>Submit</button>
-                            <button onClick={() => {setShowAddForm(false); setAddError(null)}} className="red">Cancel</button>
+                            <button onClick={() => {setShowAddForm(false); setAddError(null);setNewUser('')}} className="red">Cancel</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
                 )}
 
 {/* Edit Modal */}
             {showEditForm && selectedUser && (
                 <div className="modal-backdrop">
-                    <div className="modal">
+                    <form 
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleEditUser();
+                        }}
+
+                        className="modal">
                         <h2>Edit User</h2>
 
                         {editError && <p>{editError}</p>}
@@ -320,7 +368,7 @@ function UsersSubPage() {
                             <button onClick={() => handleEditUser(selectedUser.id)} className="green" disabled={submitting}>Submit</button>
                             <button onClick={() => {setShowEditForm(false); setSelectedUser(null); setEditError(null)}} className="red">Cancel</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             )}
 

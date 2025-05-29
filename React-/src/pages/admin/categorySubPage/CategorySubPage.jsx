@@ -4,334 +4,315 @@ import axios from 'axios';
 
 function CategorySubPage() {
 
+// Pagination
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchMessage, setSearchMessage] = useState('');
+
+// Handle searchS
     const [isSearching, setIsSearching] = useState(false);
+    const [searchMessage, setSearchMessage] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
-
-
+// Edit Category
+    const [editValue, setEditValue] = useState('');
+    const [editCategory, setEditCategory] = useState(null);
     const [editError, setEditError] = useState(null);
-    const [showEditForm, setShowEditForm] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [editUserData, setEditUserData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER',
-    });
 
-
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [newUser, setNewUser] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER'
-
-    });
+// ADD Category
     const [addError, setAddError] = useState(null);
+    const [newCategory, setNewCategory] = useState('');
+    const [showAddForm, setShowAddForm] = useState(false);
 
-    const [data, setData] = useState([]);
-    const [searchEmail,setSearchEmail] = useState('');
+// Get Category
+    const [categories, setCategories] = useState([]);
+
+// Delete Category
+    const [deleteError, setDeleteError] = useState(null);
+
+// OThers
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
-    // Search Users By Email
+
+// API Handles
+
+    // Search Api
     const handleSearch = (e) => {
+    e.preventDefault();
+    setIsSearching(true);
+    const trimmed = searchTerm.trim();
 
-        e.preventDefault(); // prevent form reload
-        setIsSearching(true);
+    if (!trimmed) {
+        setIsSearching(false);
+        handleCategoriesAll();
+        setSearchMessage('');
+        return;
+    }
 
-        const trimmedEmail = searchEmail.trim();
-    
-        // If input is empty or only spaces, reset to full list
-        if (!trimmedEmail) {
-            setIsSearching(false); // ← turn off search mode
-            handleUsersAll();
+    setLoading(true);
+    setError(null);
+
+    axios.get(`/api/category/get/type/${trimmed}`)
+        .then(res => {
+        const category = res.data.response;
+        setCategories([{ ...category }]);
+        setTotalPages(1);
+        setPage(0);
+        setSearchMessage('');
+        })
+        .catch(err => {
+        if (err.response?.status === 500 || err.response?.status === 404) {
+            setCategories([]);
+            setSearchMessage('Category not found.');
+        } else {
+            setError('Search failed.');
+        }
+        })
+        .finally(() => setLoading(false));
+    };
+
+
+    // GET ALL Api
+    const handleCategoriesAll = (pageNum = 0) => {
+        setIsSearching(false);
+        axios.get(`/api/category/get/all/with-challenge-counts?page=${pageNum}&size=5`)
+        .then((res) => {
+            setCategories(res.data.response);
+            setTotalPages(res.data.totalPages);
+            setPage(pageNum);
+            setLoading(false);
+        })
+        .catch((err) => {
+            setError(err);
+            setLoading(false);
+        });
+
+    };
+
+    // POST Api
+    const handleAddCategory = (e) => {
+        if (e) e.preventDefault();
+        if (!newCategory.trim()) {
+            setAddError("Category type can't be empty.");
             return;
         }
-        
-    
-        setLoading(true);
-        setError(null);
 
-        setLoading(true);
-        axios.get(`/api/user/get/email/${trimmedEmail}`)
-        .then((res) => {
-            const user = res.data.response;
-            setData(user ? [user] : []);
-            setSearchMessage(user ? '' : "No user found with that email.");
-            setLoading(false);
-        })
-        .catch((error) => {
-            if (error.response?.status === 404) {
-                setData([]); // clear table
-                setSearchMessage("No user found with that email.");
-            } else {
-                setError("Something went wrong. Please try again.");
-            }
-            setLoading(false);
-        });
-
-    }
-
-    // Get ALL Users Api
-    const handleUsersAll = (pageNum = 0) => {
-            setIsSearching(false);
-
-        axios.get(`/api/user/get/all?page=${pageNum}&size=5`)
-        .then((userResponse) => {
-            setData(userResponse.data.response);
-            setTotalPages(userResponse.data.totalPages);
-            setPage(pageNum)
-            setLoading(false);
-        })
-        .catch((err) => {
-            setError(err);
-            setLoading(false);
-        });
-    }
-
-    // Add New User
-    const handleAddUser = () => {
-
+        setSubmitting(true);
         setAddError(null);
 
-        axios.post(`/api/user/post`, newUser)
-        .then((res) => {
-            if (res.data && res.data.status == "SUCCESS"){
+        axios.post('/api/category/post', { type: newCategory })
+            .then((res) => {
                 alert(res.data.response);
-                handleUsersAll();
+                setNewCategory('');
                 setShowAddForm(false);
-                setNewUser({username: '', email: '', password: '', role: 'USER'});
-            }else {
-                setAddError(res.data.response || "failed to add user.");
-            }
-        }).catch((err) => {
-            const message = err.response?.data?.response || "faild to add user"
-            setAddError(message);
-        })
-    }
+                handleCategoriesAll();
+            })
+            .catch(err => {
+                setAddError(err.response?.data?.response || 'Failed to add category.');
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
+    };
 
-    // Edit user's data
-    const handleEditUser = (id) => {
-        setEditError(null); // clear any previous error
-      
-        const payload = {
-          username: editUserData.username,
-          email: editUserData.email,
-          role: editUserData.role,
-        };
-      
-        if (editUserData.password) {
-          payload.password = editUserData.password;
+    // PUT Api
+    const handleEditCategory = (e) => {
+        if (e) e.preventDefault();
+
+        if (!editValue.trim()) {
+            setEditError("Category type can't be empty.");
+            return;
         }
-      
-        axios.patch(`/api/user/edit/${id}`, payload)
-          .then((res) => {
-            if (res.data.status === "SUCCESS") {
-              alert("User updated successfully!");
-              handleUsersAll();
-              setShowEditForm(false);
-              setSelectedUser(null);
-            } else {
-              setEditError(res.data.response || "Failed to update user.");
-            }
-          })
-          .catch((err) => {
-            const message = err.response?.data?.response || "Error updating user.";
-            setEditError(message);
-          });
-      };
-      
-    // Delete User Api
-    const deleteUser = (id) => {
 
-        const confirmDelete = window.confirm("are you sure you want to delete the user?")
+        setSubmitting(true);
+        setEditError(null);
+
+        axios.patch(`/api/category/put/${editCategory.id}`, { type: editValue })
+            .then((res) => {
+                alert(res.data.response);
+                setEditCategory(null);
+                setEditValue('');
+                handleCategoriesAll(page);
+            })
+            .catch(err => {
+                setEditError(err.response?.data?.response || 'Failed to update category.');
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
+    };
+
+    // DETETE Api
+    const handleDeleteCategory = (id) => {
+        setDeleteError(null);
+        const confirmDelete = window.confirm("Are you sure you want to delete this category?");
         if (!confirmDelete) return;
 
-        axios.delete(`/api/user/delete/${id}`)
-        .then((userResponse) => {
-            setData(prevData => prevData.filter(user => user.id !== id))
-
-            if (userResponse.data && userResponse.data.status == "SUCCESS"){
-                
-                alert(userResponse.data.response);
-                handleUsersAll();
-
-            }else{
-                alert("Unexpected response from server.")
-            }
-        })
-        .catch((err) => {
-            setError(err);
-        })};
+        axios.delete(`/api/category/delete/${id}`)
+            .then((res) => {
+                alert(res.data.response);
+                setCategories(prev => prev.filter(cat => cat.id !== id)); 
+            })
+            .catch(err => {
+                setDeleteError(err.response?.data?.response || 'Failed to delete category.');
+            });
+    };
 
 
+
+// USE EFFECTS
+
+    // Render All
     useEffect(() => {
-        handleUsersAll();
-    },[]);
+        handleCategoriesAll();
+    }, []);
 
-    if (loading) return <div>Loading ...</div>;
-    if (error) return <div>Error: {error?.message || "Something went wrong"}</div>;
+    // Keyboard Friendly
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Escape') {
+                setShowAddForm(false);
+                setEditCategory(null);
+                setAddError(null);
+                setEditError(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyPress);
+        return () => document.removeEventListener('keydown', handleKeyPress);
+    }, []);
 
-    return ( 
+// Loading Handle
+    if (loading) return (
+        <div className='loading'>
+            <div className="spinner" />
+            <p>Loading, please wait...</p>
+        </div>
+    );
+
+//   Error Handle
+    if (error) return (
+        <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
+            <strong>Error:</strong> {error}
+        </div>
+    );
+
+    return (
         <div className="admin-layout">
-
             <div className="upper-part">
-
-                <form typeof='submit' method='GET' className="search" onSubmit={handleSearch}>
-                    <input type="text" placeholder='Search by EMAIL'
-                        value={searchEmail}
+                <form className="search" onSubmit={handleSearch}>
+                    <input id="searchTerm" type="text" placeholder='Search by Name'
+                        value={searchTerm}
                         onChange={(e) => {
-                            setSearchEmail(e.target.value);
-                
-                            // Optional: Reset results when user clears input
+                            setSearchTerm(e.target.value);
                             if (e.target.value.trim() === '') {
-                                handleUsersAll();
+                                handleCategoriesAll();
                             }
                         }}
                     />
-                    <img src="/images/search_icon.png" alt="Search" onClick={handleSearch}/>
+                    {searchTerm && (
+                        <button type="button" onClick={() => { setSearchTerm(''); handleCategoriesAll(); }}>✖</button>
+                    )}
+                    <img src="/images/search_icon.png" alt="Search" onClick={handleSearch} />
                 </form>
-
-                <p> Welcome to the Admin's Controller</p>
-                
+                <p>Category Management</p>
                 <div className="AddNew">
-                    <button className='green' onClick={() => setShowAddForm(true)} >Add New</button>
+                    <button className='green' onClick={() => setShowAddForm(true)} >Add Category</button>
                 </div>
-
             </div>
+
+            {deleteError && (
+                <div style={{ color: 'red', textAlign: 'center', marginBottom: '1rem' }}>
+                    {deleteError}
+                </div>
+            )}
+
 
             <div className="data-table">
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Total Challenges</th>
                             <th>Actions</th>
                         </tr>
-                   </thead>
-
+                    </thead>
                     <tbody>
-                    {data.length > 0 ? (
-                        data.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.username}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>{new Date(user.regDateAndTime).toLocaleString()}</td>
-                                <td> <button className='green' onClick={() => { setSelectedUser(user); setEditUserData({ username: user.username, email: user.email,password: '', role: user.role}); setShowEditForm(true);}}>Edit</button>
-                                    <button className='red' onClick={() => deleteUser(user.id)}>Delete</button></td></tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="5" style={{ textAlign: "center", padding: "1rem" }}>
-                                {searchMessage || "No users available."}
-                            </td>
-                        </tr>
-                    )}
+                        {categories.length > 0 ? (
+                            categories.map((cat, idx) => (
+                                <tr key={idx}>
+                                    <td>{cat.type}</td>
+                                    <td>{cat.totalChallenges}</td>
+                                    <td>
+                                        <button className='green' onClick={() => { setEditCategory(cat); setEditValue(cat.type); }}>Edit</button>
+                                        <button className='red' onClick={() => handleDeleteCategory(cat.id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3" style={{ textAlign: "center", padding: "1rem" }}>
+                                    {searchMessage || 'No categories available.'}
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
 
-            {!isSearching && <div className="pagination">
-                <button className="green" disabled={page === 0} onClick={() => handleUsersAll(page - 1)}>{`<`}</button>
-                <span>Page {page + 1} of {totalPages}</span>
-                <button className="green" disabled={page + 1 >= totalPages} onClick={() => handleUsersAll(page + 1)}>{`>`}</button>
-            </div>}
+            {!isSearching && (
+                <div className="pagination">
+                    <button className="green" disabled={page === 0} onClick={() => handleCategoriesAll(page - 1)}>{`<`}</button>
+                    <span>Page {page + 1} of {totalPages}</span>
+                    <button className="green" disabled={page + 1 >= totalPages} onClick={() => handleCategoriesAll(page + 1)}>{`>`}</button>
+                </div>
+            )}
 
-
-{/* Add modal */}
+    {/* Add modal */}
             {showAddForm && (
                 <div className="modal-backdrop">
-                    <div className="modal">
-                        <h2>Add New User</h2>
+                    <form className="modal" onSubmit={handleAddCategory}>
+                        <h2>Add New Category</h2>
 
                         {addError && <p>{addError}</p>}
                         <input
                             type="text"
-                            placeholder="Username"
-                            value={newUser.username}
-                            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                            placeholder="Category Type"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
                         />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={newUser.email}
-                            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={newUser.password}
-                            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                        />
-                        <select
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                        >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
-                        </select>
-                        <div className="modal-actions">
-                            <button onClick={handleAddUser} className="green">Submit</button>
-                            <button onClick={() => {setShowAddForm(false); setAddError(null)}} className="red">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-                )}
-
-{/* Edit Modal */}
-            {showEditForm && selectedUser && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <h2>Edit User</h2>
-
-                        {editError && <p>{editError}</p>}
-
-
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            value={editUserData.username}
-                            onChange={(e) => setEditUserData({ ...editUserData, username: e.target.value })}
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={editUserData.email}
-                            onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
-                        />
-                        <input
-                            type="password"
-                            placeholder="New Password (leave blank to keep current)"
-                            value={editUserData.password}
-                            onChange={(e) => setEditUserData({ ...editUserData, password: e.target.value })}
-                        />
-                        <select
-                            value={editUserData.role}
-                            onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
-                        >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
-                        </select>
 
                         <div className="modal-actions">
-                            <button onClick={() => handleEditUser(selectedUser.id)} className="green">Submit</button>
-                            <button onClick={() => {setShowEditForm(false); setSelectedUser(null); setEditError(null)}} className="red">Cancel</button>
+                            <button type="submit" className="green" disabled={submitting}>Submit</button>
+                            <button type="button" onClick={() => { setShowAddForm(false); setAddError(null); setNewCategory('') }} className="red">Cancel</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             )}
 
+    {/* Edit Modal */}
+            {editCategory && (
+                <div className="modal-backdrop">
+                    <form className="modal" onSubmit={handleEditCategory}>
+                        <h2>Edit Category</h2>
+
+                        {editError && <p>{editError}</p>}
+                        <input
+                            type="text"
+                            placeholder="New Category Type"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                        />
+
+                        <div className="modal-actions">
+                            <button type="submit" className="green" disabled={submitting}>Submit</button>
+                            <button type="button" onClick={() => { setEditCategory(null); setEditError(null);}} className="red">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            )}
         </div>
-     );
+    );
 }
 
 export default CategorySubPage;

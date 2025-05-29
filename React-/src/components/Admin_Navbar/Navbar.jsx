@@ -32,8 +32,8 @@ function Navbar() {
                 <div className={`nav-tabs ${isActive ? '' : 'activated'}`}>
                     <ul>
                         <li><NavLink to={"/admin/users"}>Users</NavLink></li>
-                        <li><NavLink to={"/admin/challenges"}>Challenges</NavLink></li>
                         <li><NavLink to={"/admin/category"}>Category</NavLink></li>
+                        <li><NavLink to={"/admin/challenges"}>Challenges</NavLink></li>
                         <li><NavLink to={"/admin/feedback"}>Feedback</NavLink></li>
                     </ul>
                 

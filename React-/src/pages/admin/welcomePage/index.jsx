@@ -8,7 +8,7 @@ function index() {
         <>
             <Navbar />
             <WelcomePage />
-            <Footer />
+            {/* <Footer /> */}
 
         </>
     );
