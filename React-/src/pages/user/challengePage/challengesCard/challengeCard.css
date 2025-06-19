@@ -1,8 +1,16 @@
+.challenge-page-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .challengeCard-Section{
     display: flex;
     justify-content: start;
     flex-wrap: wrap;
     margin: 1rem 0rem;
+    width: 100%;
+
 }
 
 .Card{
@@ -64,6 +72,9 @@
     width: 4.5rem;
 }
 
+
+
+
 @keyframes textLoop{
     from{
         transform: translate(0);
@@ -76,10 +87,14 @@
     100%{
         transform: translate(-100%);
     }
+
+    
 }
 
 @media screen and (max-width:700px) {
     .challengeCard-Section{
         justify-content: center;
     }
+
+
 }

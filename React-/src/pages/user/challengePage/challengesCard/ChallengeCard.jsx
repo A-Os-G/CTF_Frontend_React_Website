@@ -1,120 +1,51 @@
-import React from 'react';
-import './challengeCard.css'
+import React, { useEffect, useState } from 'react';
+import './challengeCard.css';
 import GetElementDimensions from '../../../../hooks/GetElementDimensions';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-// function DynamicCard() {}
+function ChallengeCard({ challenges, onCardClick }) {
+  if (!challenges || challenges.length === 0) {
+    return <div style={{ padding: '1rem', textAlign: 'center' }}>No challenges available.</div>;
+  }
 
-function ChallengeCard() {
-    return ( 
-        <>
-            <div className="challengeCard-Section">
+  return (
+    <div className="challenge-page-container">
+      <div className="challengeCard-Section">
+        {challenges.map((ch) => (
+          <Link to="#" key={ch.id} onClick={(e) => {
+              e.preventDefault(); // prevent navigation
+              onCardClick(ch);
+            }} className="Card">
 
-                <Link to='./slug' className="Card">
-                    <div className="cat-Diff">
-                        <p>Cateogry</p>
-                        <p>Diffucilty</p>
-                    </div>
-
-                    {/* <div className="cart-Title [overflowing|nooverflow]"> */}
-                    <GetElementDimensions 
-                        kid={
-                            <>1 2 3 4 5 6 7 8</>
-                        }
-                    />
-                    {/* /> */}
-
-                    <div className="star-progress">
-
-                        <p> Progress: </p>
-
-                        <img src="./images/Star_full.png" className='Side' />
-                        <img src="./images/Star_full.png" className='Center' />
-                        <img src="./images/Star_full.png" className='Side' />
-                    </div>
-
-                </Link>
-
-                <div className="Card">
-                    <div className="cat-Diff">
-                        <p>Cateogry</p>
-                        <p>Diffucilty</p>
-                    </div>
-
-                    {/* <div className="cart-Title [overflowing|nooverflow]"> */}
-                    <GetElementDimensions 
-                        kid={
-                            <>1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25</>
-                        }
-                    />
-                    {/* /> */}
-
-                    <div className="star-progress">
-
-                        <p> Progress: </p>
-
-                        <img src="./images/Star_full.png" className='Side' />
-                        <img src="./images/Star_full.png" className='Center' />
-                        <img src="./images/Star_full.png" className='Side' />
-                    </div>
-
-                </div>
-
-                <div className="Card">
-                    <div className="cat-Diff">
-                        <p>Cateogry</p>
-                        <p>Diffucilty</p>
-                    </div>
-
-                    <GetElementDimensions 
-                        kid={
-                            <>1 2 3 4 5 6 7 8 9 10</>
-                        }
-                    />
-
-                    <div className="star-progress">
-
-                        <p> Progress: </p>
-
-                        <img src="./images/Star_full.png" className='Side' />
-                        <img src="./images/Star_full.png" className='Center' />
-                        <img src="./images/Star_full.png" className='Side' />
-                    </div>
-
-                </div>
-
-                <div className="Card">
-                    <div className="cat-Diff">
-                        <p>Cateogry</p>
-                        <p>Diffucilty</p>
-                    </div>
-
-                    <GetElementDimensions 
-                        kid={
-                            <>1 2 3 4 5 6 7 8 9 10</>
-                        }
-                    />
-
-                    <div className="star-progress">
-
-                        <p> Progress: </p>
-
-                        <img src="./images/Star_full.png" className='Side' />
-                        <img src="./images/Star_full.png" className='Center' />
-                        <img src="./images/Star_full.png" className='Side' />
-                    </div>
-
-                </div>
-
-               
-
+            <div className="cat-Diff">
+              <p>{ch.category?.type}</p>
+              <p>{ch.difficulty}</p>
             </div>
-        </>
-     );
+
+            <GetElementDimensions kid={<>{ch.name}</>} />
+
+            <div className="star-progress">
+              <p>Progress:</p>
+              {[...Array(3)].map((_, i) => (
+                <img
+                  key={i}
+                  src={
+                    i < ch.stars
+                      ? '/images/Star_full.png'
+                      : '/images/Star_empty.png'
+                  }
+                  className={i === 1 ? 'Center' : 'Side'}
+                  alt="star"
+                />
+              ))}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-// function overflow (){
-    
-// }
 
 export default ChallengeCard;

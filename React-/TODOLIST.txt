@@ -11,3 +11,9 @@ TODO:
     Challenge Filtering.
     
     Challenge Progress.
+
+THINGS I SHOULD HAVE TURNED TO COMPONENTS:
+
+    search box.
+
+    Pagination.

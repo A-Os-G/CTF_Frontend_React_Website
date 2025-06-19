@@ -358,7 +358,7 @@ function ChallengesSubPage() {
                             value={newChallenge.name}
                             onChange={(e) => setNewChallenge({ ...newChallenge, name: e.target.value })}
                         />
-                        <input
+                        <textarea
                             type="text"
                             placeholder="Description"
                             value={newChallenge.description}
@@ -424,7 +424,7 @@ function ChallengesSubPage() {
                             value={editChallengeData.name}
                             onChange={(e) => setEditChallengeData({ ...editChallengeData, name: e.target.value })}
                         />
-                        <input
+                        <textarea
                             type="text"
 
                             placeholder="Description"
