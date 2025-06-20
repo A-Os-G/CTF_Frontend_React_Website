@@ -18,18 +18,43 @@ function ChallengePage() {
   const [selectedChallenge, setSelectedChallenge] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [progressMap, setProgressMap] = useState({});
+  const [refreshKey, setRefreshKey] = useState(0);
+
+
+  const fetchProgress = () => {
+    axios.get(`/api/progress/get?email=Galal@gmail.com`)
+      .then(res => {
+        const progressData = res.data;
+        const map = {};
+        progressData.forEach(entry => {
+          map[entry.challengeId] = entry.starsEarned;
+        });
+        setProgressMap(map);
+      });
+  };
+
+  
+
   const openChallengeModal = (challenge) => {
     setSelectedChallenge(challenge);
     setModalVisible(true);
   };
 
-  const handleFlagSubmit = (id, flag) => {
-    axios.post(`/api/challenge/solve/${id}`, flag, {
-      headers: { 'Content-Type': 'text/plain' }
+  const handleFlagSubmit = (id, flag, usedHints, onSuccessCallback) => {
+    axios.post(`/api/challenge/solve/${id}?email=Galal@gmail.com`, {
+      submittedFlag: flag,
+      usedHints: usedHints
     })
-    .then(res => alert("Flag submitted!"))
-    .catch(err => alert("Wrong flag or error occurred"));
+      .then(res => {
+        const { challengeName, starsEarned } = res.data.response;
+        fetchProgress();  
+        setRefreshKey(prev => prev + 1); 
+        if (onSuccessCallback) onSuccessCallback();
+      })
+      .catch(() => alert("Wrong flag or error occurred"));
   };
+
 
   const fetchChallenges = (pageNum = 0) => {
     setLoading(true);
@@ -45,6 +70,7 @@ function ChallengePage() {
 
   useEffect(() => {
     fetchChallenges();
+    fetchProgress();
   }, []);
 
   const handleFilter = ({ searchTerm, selectedCategory, selectedDifficulty }) => {
@@ -65,11 +91,24 @@ function ChallengePage() {
     }
   };
 
+  const onSubmitFlag = (challengeId, flag, onSuccessCallback) => {
+    axios.post(`/api/challenge/solve/${challengeId}?flag=${flag}`)
+      .then(res => {
+        alert(res.data.response);
+        if (onSuccessCallback) onSuccessCallback(); // Show feedback modal
+      })
+      .catch(err => {
+        alert(err.response.data.response || "Failed to submit flag.");
+      });
+  };
+
+
   return (
     <>
-      <Navbar />
+      <Navbar type='challenge'/>
       <div className='body'>
-        <Progress />
+        <Progress refresh={refreshKey} />
+
 
         <div className="layout">
           <Filter onFilter={handleFilter} />
@@ -77,7 +116,7 @@ function ChallengePage() {
             <div className="spinner" />
           ) : (
             <>
-              <ChallengeCard challenges={challenges} onCardClick={openChallengeModal}/>
+              <ChallengeCard challenges={challenges} onCardClick={openChallengeModal} progressMap={progressMap}/>
 
               {totalPages > 1 && (
                 <div className="pagination">
@@ -91,12 +130,15 @@ function ChallengePage() {
         </div>
         
       </div>
-      <ChallengeModal
-        visible={modalVisible}
-        challenge={selectedChallenge}
-        onClose={() => setModalVisible(false)}
-        onSubmitFlag={handleFlagSubmit}
-      />
+        <ChallengeModal
+          visible={modalVisible}
+          challenge={selectedChallenge}
+          onClose={() => setModalVisible(false)}
+          onSubmitFlag={handleFlagSubmit}
+          
+        />
+
+
 
       <Footer />
     </>

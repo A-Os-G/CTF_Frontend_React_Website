@@ -53,14 +53,15 @@ function CategorySubPage() {
     setLoading(true);
     setError(null);
 
-    axios.get(`/api/category/get/type/${trimmed}`)
-        .then(res => {
+    axios.get(`/api/category/get/type/with-challenge-count/${trimmed}`)
+    .then(res => {
         const category = res.data.response;
-        setCategories([{ ...category }]);
+        setCategories([{ ...category }]); // this still works
         setTotalPages(1);
         setPage(0);
         setSearchMessage('');
-        })
+    })
+
         .catch(err => {
         if (err.response?.status === 500 || err.response?.status === 404) {
             setCategories([]);

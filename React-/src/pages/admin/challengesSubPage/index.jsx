@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../../../components/Admin_Navbar/Navbar"
+import Navbar from "../../../components/Navbar/Navbar"
 import ChallengesSubPage from "./challengesSubPage"
 
 function index() {

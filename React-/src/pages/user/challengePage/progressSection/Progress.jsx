@@ -2,18 +2,20 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './progress.css';
 
-function Progress() {
+function Progress({ refresh }) {
     const [summary, setSummary] = useState(null);
 
-    useEffect(() => {
-        const email = "Galal@gmail.com"; // for development testing only
+    const fetchStarSummary = () => {
+        axios.get(`/api/progress/stars/summary/full?email=Galal@gmail.com`)
+            .then(res => setSummary(res.data.response))
+            .catch(err => console.error("Failed to load progress summary", err));
+    };
 
-        if (email) {
-            axios.get(`/api/progress/stars/summary/full?email=${email}`)
-                .then(res => setSummary(res.data.response))
-                .catch(err => console.error("Failed to load progress summary", err));
-        }
-    }, []);
+
+
+    useEffect(() => {
+        fetchStarSummary();
+    }, [refresh]);;
 
     const getBarGradient = (difficulty) => {
         switch (difficulty) {
