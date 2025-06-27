@@ -4,6 +4,7 @@ import HomePage from '../pages/user/homePage/index'
 import ChallengePage from '../pages/user/challengePage/index'
 import SignupPage from '../pages/user/accessPage/signupPage/Signup';
 import LoginPage from '../pages/user/accessPage/loginPage/Login';
+import EditProfilePage from '../pages/user/profilePage/index';
 import AdminPage from '../pages/admin/welcomePage/index'
 import UsersSubPage from '../pages/admin/usersSubPage/index';
 import ChallengesSubPage from '../pages/admin/challengesSubPage/index';
@@ -21,6 +22,7 @@ const Routing = () => {
         <Route path='/signup' element={<SignupPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/admin' element={<AdminPage />} />
+        <Route path='/profile' element={<EditProfilePage />} />
         <Route path='/admin/users' element={<UsersSubPage />} />
         <Route path='/admin/challenges' element={<ChallengesSubPage />} />
         <Route path='/admin/category' element={<CategorySubPage />} />

@@ -14,6 +14,7 @@ function SharedNavbar() {
   // Detect current path type
   const isAdmin = location.pathname.startsWith('/admin');
   const isChallengePage = location.pathname.startsWith('/challenge');
+  const isProfile = location.pathname === '/profile';
   const isHome = location.pathname === '/';
 
   // 🔐 Replace with real login state
@@ -65,6 +66,35 @@ function SharedNavbar() {
                 </li>
               </>
             )}
+            {isChallengePage && (
+              <>
+                <li>
+                  <NavLink to="/" smooth duration={500}>
+                    Home
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/challenge" smooth duration={500}>
+                    Challenges
+                  </NavLink>
+                </li>
+              </>
+            )}
+
+            {isProfile && (
+              <>
+                <li>
+                  <NavLink to="/" smooth duration={500}>
+                    Home
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/challenge" smooth duration={500}>
+                    Challenges
+                  </NavLink>
+                </li>
+              </>
+            )}
 
             {isAdmin && (
               <>
@@ -86,10 +116,10 @@ function SharedNavbar() {
 
             {/* Right Button */}
             <div className="Nav-button">
-            {(isAdmin || isChallengePage) ? (
-                <Button name="Profile" address="/profile" />
+            {(isAdmin || isChallengePage || isProfile) ? (
+                <Button name="Profile" address="./profile" />
             ) : (
-                <Button name="Login / Signup" address="/login" />
+                <Button name="Login / Signup" address="./login" />
             )}
             </div>
 

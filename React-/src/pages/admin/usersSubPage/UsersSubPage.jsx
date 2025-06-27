@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import '../../../components/AdminSubPageLayout/adminSubPageLayout.css';
 import axios from 'axios';
@@ -16,12 +15,12 @@ function UsersSubPage() {
     
 // Edit User
     const [selectedUser, setSelectedUser] = useState(null);
-    const [editUserData, setEditUserData] = useState({ username: '', email: '', password: '', role: 'USER' });
+    const [editUserData, setEditUserData] = useState({ username: '', email: '', password: '', role: 'ROLE_USER' });
     const [showEditForm, setShowEditForm] = useState(false);
     const [editError, setEditError] = useState(null);
     
 // Add User
-    const [newUser, setNewUser] = useState({ username: '', email: '', password: '', role: 'USER' });
+    const [newUser, setNewUser] = useState({ username: '', email: '', password: '', role: 'ROLE_USER' });
     const [showAddForm, setShowAddForm] = useState(false);
     const [addError, setAddError] = useState(null);
     
@@ -96,7 +95,7 @@ function UsersSubPage() {
                     alert(res.data.response);
                     handleUsersAll();
                     setShowAddForm(false);
-                    setNewUser({ username: '', email: '', password: '', role: 'USER' });
+                    setNewUser({ username: '', email: '', password: '', role: 'ROLE_USER' });
                 } else {
                     setAddError(res.data.response || "failed to add user.");
                 }
@@ -150,7 +149,7 @@ function UsersSubPage() {
         const confirmDelete = window.confirm("are you sure you want to delete the user?")
         if (!confirmDelete) return;
 
-        axios.delete(`/api/user/delete/${id}`)
+        axios.delete(`http://localhost:8080/api/user/delete/${id}`)
             .then((userResponse) => {
                 setData(prevData => prevData.filter(user => user.id !== id))
 
@@ -162,7 +161,12 @@ function UsersSubPage() {
                 }
             })
             .catch((err) => {
-                setError(err);
+                const msg =
+      err.response?.data?.response ||
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to delete user.";
+    setError(msg);
             })
     }
 
@@ -311,9 +315,9 @@ function UsersSubPage() {
                             value={newUser.role}
                             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                         >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
+                            <option value="ROLE_USER">USER</option>
+                            <option value="ROLE_ADMIN">ADMIN</option>
+                            <option value="ROLE_LECTURER">LECTURER</option>
                         </select>
                         <div className="modal-actions">
                             <button onClick={handleAddUser} className="green" disabled={submitting}>Submit</button>
@@ -359,9 +363,9 @@ function UsersSubPage() {
                             value={editUserData.role}
                             onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
                         >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="LECTURER">LECTURER</option>
+                            <option value="ROLE_USER">USER</option>
+                            <option value="ROLE_ADMIN">ADMIN</option>
+                            <option value="ROLE_LECTURER">LECTURER</option>
                         </select>
 
                         <div className="modal-actions">

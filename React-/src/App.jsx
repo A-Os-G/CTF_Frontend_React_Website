@@ -1,3 +1,4 @@
+import './axiosConfig'; // This sets withCredentials globally
 import Routing from './Routes/Routing'
 
 

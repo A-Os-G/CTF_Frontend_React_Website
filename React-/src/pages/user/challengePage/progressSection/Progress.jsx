@@ -6,7 +6,7 @@ function Progress({ refresh }) {
     const [summary, setSummary] = useState(null);
 
     const fetchStarSummary = () => {
-        axios.get(`/api/progress/stars/summary/full?email=Galal@gmail.com`)
+        axios.get(`/api/progress/stars/summary/full`)
             .then(res => setSummary(res.data.response))
             .catch(err => console.error("Failed to load progress summary", err));
     };

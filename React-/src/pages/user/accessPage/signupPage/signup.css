@@ -35,7 +35,7 @@
 }
 
 .inputs{
-    margin: 2rem 3rem;
+    margin: 0rem 3rem;
 }
 
 .inputs > a{
@@ -80,11 +80,51 @@
 .signup-button Button{
     padding: 1.3rem 5rem;
     font-weight: 800;
-    margin-bottom: 2rem;
+    margin: 1rem 0rem;
     box-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.393);
 
 
 } 
+
+.social-signup {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: center;
+    margin: 1.2rem 0 1.5rem 0;
+}
+
+.social-signup a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 50%;
+    min-width: 5rem;         /* Increased size */
+    min-height: 5rem;        /* Increased size */
+    box-shadow: 0 2px 8px rgba(99, 225, 168, 0.18);
+    border: 1.5px solid #e3f9ed;
+    transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
+    cursor: pointer;
+    padding: 0;          /* Remove any default padding */
+}
+
+.social-signup img {
+    height: 36px;        /* Larger and perfectly round */
+    width: 36px;
+    object-fit: contain; /* Prevent stretching */
+    transition: filter 0.2s;
+    display: block;
+}
+
+.social-signup a:hover {
+    box-shadow: 0 4px 16px rgba(99, 225, 168, 0.28);
+    transform: translateY(-3px) scale(1.08);
+    background: #e3f9ed;
+}
+
+.social-signup a:hover img {
+    filter: brightness(0.85);
+}
 
 @media screen and (max-width:700px) {
 

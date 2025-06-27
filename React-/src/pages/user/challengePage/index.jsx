@@ -6,6 +6,7 @@ import ChallengeCard from './challengesCard/ChallengeCard';
 import Progress from './progressSection/Progress';
 import ChallengeModal from './challengeDetails/ChallengeModal';
 import axios from 'axios';
+axios.defaults.withCredentials = true;
 import { useState, useEffect } from 'react';
 import './index.css'
 
@@ -23,7 +24,7 @@ function ChallengePage() {
 
 
   const fetchProgress = () => {
-    axios.get(`/api/progress/get?email=Galal@gmail.com`)
+    axios.get('/api/progress/get')
       .then(res => {
         const progressData = res.data;
         const map = {};
@@ -42,7 +43,7 @@ function ChallengePage() {
   };
 
   const handleFlagSubmit = (id, flag, usedHints, onSuccessCallback) => {
-    axios.post(`/api/challenge/solve/${id}?email=Galal@gmail.com`, {
+    axios.post(`/api/challenge/solve/${id}`, {
       submittedFlag: flag,
       usedHints: usedHints
     })
@@ -91,7 +92,7 @@ function ChallengePage() {
     }
   };
 
-  const onSubmitFlag = (challengeId, flag, onSuccessCallback) => {
+  const onSubmitFlag = (challengeId, flag, usedHints, onSuccessCallback) => {
     axios.post(`/api/challenge/solve/${challengeId}?flag=${flag}`)
       .then(res => {
         alert(res.data.response);

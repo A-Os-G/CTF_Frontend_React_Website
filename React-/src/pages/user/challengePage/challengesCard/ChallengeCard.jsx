@@ -2,6 +2,8 @@ import React from 'react';
 import './challengeCard.css';
 import GetElementDimensions from '../../../../hooks/GetElementDimensions';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+axios.defaults.withCredentials = true;
 
 function ChallengeCard({ challenges, onCardClick, progressMap }) {
   if (!challenges || challenges.length === 0) {
