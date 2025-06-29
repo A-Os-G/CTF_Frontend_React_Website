@@ -41,7 +41,12 @@ function ChallengeModal({ challenge, visible, onClose, onSubmitFlag }) {
           </div>
         </div>
 
-        <img src={`/images/Hero_Image.jpg`} alt={challenge.name} className="challenge-image" />
+        <img
+          src={`/api/challenge/${challenge.id}/image`}
+          alt={challenge.name}
+          className="challenge-image"
+          style={{ maxWidth: '100%', maxHeight: '250px', objectFit: 'contain', margin: '1rem 0' }}
+        />
 
         <p className="description">{challenge.description}</p>
 

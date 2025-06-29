@@ -37,6 +37,10 @@ function ChallengesSubPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Add these states at the top of your component
+    const [newChallengeImage, setNewChallengeImage] = useState(null);
+    const [editChallengeImage, setEditChallengeImage] = useState(null);
+
 
 // API Handles
 
@@ -109,10 +113,21 @@ function ChallengesSubPage() {
         axios.post(`/api/challenge/post/${newChallenge.categoryId}`, payload)
             .then((res) => {
                 if (res.data.status === "SUCCESS") {
-                    alert(res.data.response);
-                    handleChallengesAll();
+                    // Always extract the ID from response.id
+                    const challengeId = res.data.response?.id;
+
+                    if (challengeId && newChallengeImage) {
+                      uploadImage(challengeId, newChallengeImage).then(() => {
+                        alert("Challenge and image uploaded!");
+                        handleChallengesAll();
+                      });
+                    } else {
+                      alert(res.data.response?.name || "Challenge added!");
+                      handleChallengesAll();
+                    }
                     setShowAddForm(false);
                     setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', solution: '', categoryId: '' });
+                    setNewChallengeImage(null);
                 } else {
                     setAddError(res.data.response || "Failed to add challenge.");
                 }
@@ -144,10 +159,18 @@ function ChallengesSubPage() {
     axios.patch(`/api/challenge/put/${id}?catid=${editChallengeData.categoryId}`, payload)
         .then((res) => {
             if (res.data.status === "SUCCESS") {
+              if (editChallengeImage) {
+                uploadImage(id, editChallengeImage).then(() => {
+                  alert("Challenge updated and image uploaded!");
+                  handleChallengesAll();
+                });
+              } else {
                 alert(res.data.response);
                 handleChallengesAll();
-                setShowEditForm(false);
-                setSelectedChallenge(null);
+              }
+              setShowEditForm(false);
+              setSelectedChallenge(null);
+              setEditChallengeImage(null);
             } else {
                 setEditError(res.data.response || "Failed to update challenge.");
             }
@@ -341,7 +364,7 @@ function ChallengesSubPage() {
 </td>
                                 </tr>
                             ))
-                        ) : (
+                        ): (
                             <tr>
                                 <td colSpan="9" style={{ textAlign: "center", padding: "1rem" }}>
                                     {searchMessage || "No challenges available."}
@@ -421,6 +444,12 @@ function ChallengesSubPage() {
                             onChange={(e) => setNewChallenge({ ...newChallenge, solution: e.target.value })}
                         />
 
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={e => setNewChallengeImage(e.target.files[0])}
+                            />
+
                         <div className="modal-actions">
                             <button type="submit" className="green" disabled={submitting}>Submit</button>
                             <button type="button" onClick={() => { setShowAddForm(false); setAddError(null); setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', solution: '', categoryId: '' }) }} className="red">Cancel</button>
@@ -495,6 +524,12 @@ function ChallengesSubPage() {
                             onChange={(e) => setEditChallengeData({ ...editChallengeData, solution: e.target.value })}
                         />
 
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={e => setEditChallengeImage(e.target.files[0])}
+                        />
+
                         <div className="modal-actions">
                             <button type="submit" className="green" disabled={submitting}>Submit</button>
                             <button type="button" onClick={() => { setShowEditForm(false); setSelectedChallenge(null); setEditError(null); }} className="red">Cancel</button>
@@ -506,5 +541,14 @@ function ChallengesSubPage() {
         </div>
     );
 }
+
+const uploadImage = (challengeId, imageFile) => {
+  if (!imageFile) return Promise.resolve();
+  const formData = new FormData();
+  formData.append('image', imageFile);
+  return axios.post(`/api/challenge/${challengeId}/image`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+};
 
 export default ChallengesSubPage;
