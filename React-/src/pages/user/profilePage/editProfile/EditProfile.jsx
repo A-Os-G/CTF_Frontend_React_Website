@@ -12,6 +12,10 @@ const EditProfile = ({ userId }) => {
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+
 
   useEffect(() => {
     axios
@@ -41,7 +45,11 @@ const EditProfile = ({ userId }) => {
       )
       .then((res) => setMessage(res.data.message || "Profile updated!"))
       .catch((err) =>
-        setError(err.response?.data?.message || "Failed to update profile.")
+        setError(
+          err.response?.data?.response ||
+          err.response?.data?.message ||
+          "Failed to update profile."
+        )
       );
   };
 
@@ -68,7 +76,11 @@ const EditProfile = ({ userId }) => {
       )
       .then((res) => setMessage(res.data.message || "Password updated!"))
       .catch((err) =>
-        setError(err.response?.data?.message || "Failed to update password.")
+        setError(
+          err.response?.data?.response ||
+          err.response?.data?.message ||
+          "Failed to update password."
+        )
       );
   };
 
@@ -88,7 +100,7 @@ const EditProfile = ({ userId }) => {
     axios.post("http://localhost:8080/perform_logout", {}, { withCredentials: true })
       .finally(() => {
         localStorage.clear();
-        window.location.href = "/login";
+        window.location.href = "/";
       });
   };
 
@@ -134,33 +146,54 @@ const EditProfile = ({ userId }) => {
           <h3>Update Password</h3>
           <p>Use a strong password to keep your account secure.</p>
           <form onSubmit={handlePasswordUpdate}>
-            <div className="profile-inputbox">
-              <input
-                type="password"
-                name="oldPassword"
-                value={passwords.oldPassword}
-                onChange={handlePasswordChange}
-                placeholder="Current Password"
-              />
-            </div>
-            <div className="profile-inputbox">
-              <input
-                type="password"
-                name="newPassword"
-                value={passwords.newPassword}
-                onChange={handlePasswordChange}
-                placeholder="New Password"
-              />
-            </div>
-            <div className="profile-inputbox">
-              <input
-                type="password"
-                name="confirmPassword"
-                value={passwords.confirmPassword}
-                onChange={handlePasswordChange}
-                placeholder="Confirm New Password"
-              />
-            </div>
+          <div className="profile-inputbox">
+            <input
+              type={showOldPassword ? "text" : "password"}
+              name="oldPassword"
+              value={passwords.oldPassword}
+              onChange={handlePasswordChange}
+              placeholder="Current Password"
+            />
+            <img
+              src="/images/Password.png"
+              alt="Toggle"
+              className="toggle-password"
+              onClick={() => setShowOldPassword(prev => !prev)}
+            />
+          </div>
+
+          <div className="profile-inputbox">
+            <input
+              type={showNewPassword ? "text" : "password"}
+              name="newPassword"
+              value={passwords.newPassword}
+              onChange={handlePasswordChange}
+              placeholder="New Password"
+            />
+            <img
+              src="/images/Password.png"
+              alt="Toggle"
+              className="toggle-password"
+              onClick={() => setShowNewPassword(prev => !prev)}
+            />
+          </div>
+
+          <div className="profile-inputbox">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={passwords.confirmPassword}
+              onChange={handlePasswordChange}
+              placeholder="Confirm New Password"
+            />
+            <img
+              src="/images/Password.png"
+              alt="Toggle"
+              className="toggle-password"
+              onClick={() => setShowConfirmPassword(prev => !prev)}
+            />
+          </div>
+
             <button className="profile-action-button" type="submit">
               Save
             </button>

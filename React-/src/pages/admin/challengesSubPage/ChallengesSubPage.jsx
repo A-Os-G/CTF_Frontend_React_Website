@@ -21,7 +21,7 @@ function ChallengesSubPage() {
     const [editError, setEditError] = useState(null);
 
 // Add Challenge
-    const [newChallenge, setNewChallenge] = useState({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: '' });
+    const [newChallenge, setNewChallenge] = useState({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', solution: '', categoryId: '' });
     const [showAddForm, setShowAddForm] = useState(false);
     const [addError, setAddError] = useState(null);
 
@@ -100,7 +100,8 @@ function ChallengesSubPage() {
             flag: newChallenge.flag,
             difficulty: newChallenge.difficulty,
             hint1: newChallenge.hint1,
-            hint2: newChallenge.hint2
+            hint2: newChallenge.hint2,
+            solution: newChallenge.solution // <-- Add this
         };
 
         console.log(payload);
@@ -111,7 +112,7 @@ function ChallengesSubPage() {
                     alert(res.data.response);
                     handleChallengesAll();
                     setShowAddForm(false);
-                    setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: '' });
+                    setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', solution: '', categoryId: '' });
                 } else {
                     setAddError(res.data.response || "Failed to add challenge.");
                 }
@@ -136,7 +137,8 @@ function ChallengesSubPage() {
         flag: editChallengeData.flag,
         difficulty: editChallengeData.difficulty,
         hint1: editChallengeData.hint1,
-        hint2: editChallengeData.hint2
+        hint2: editChallengeData.hint2,
+        solution: editChallengeData.solution // <-- Add this
     };
 
     axios.patch(`/api/challenge/put/${id}?catid=${editChallengeData.categoryId}`, payload)
@@ -296,6 +298,7 @@ function ChallengesSubPage() {
                             <th>Flag</th>
                             <th>Hint 1</th>
                             <th>Hint 2</th>
+                            <th>Solution</th> {/* <-- Add this */}
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -304,33 +307,43 @@ function ChallengesSubPage() {
                             data.map((challenge) => (
                                 <tr key={challenge.id}>
                                     <td>{challenge.name}</td>
-                                    <td>{challenge.description}</td>
+                                    <td className="truncate description" title={challenge.description}>{challenge.description}</td>
                                     <td>{challenge.category.type}</td>
                                     <td>{challenge.difficulty}</td>
                                     <td>{challenge.flag}</td>
-                                    <td>{challenge.hint1}</td>
-                                    <td>{challenge.hint2}</td>
+                                    <td className="truncate" title={challenge.hint1}>{challenge.hint1}</td>
+                                    <td className="truncate" title={challenge.hint2}>{challenge.hint2}</td>
+                                    <td className="truncate solution" title={challenge.solution}>{challenge.solution}</td>
                                     <td>
-                                        <button className='green' onClick={() => {
-                                            setSelectedChallenge(challenge);
-                                            setEditChallengeData({
-                                                name: challenge.name,
-                                                description: challenge.description,
-                                                flag: challenge.flag,
-                                                difficulty: challenge.difficulty,
-                                                hint1: challenge.hint1,
-                                                hint2: challenge.hint2,
-                                                categoryId: challenge.category?.id
-                                            });
-                                            setShowEditForm(true);
-                                        }}>Edit</button>
-                                        <button className='red' onClick={() => handleDeleteChallenge(challenge.id)}>Delete</button>
-                                    </td>
+  <button
+    className='green'
+    title="Edit"
+    onClick={() => {
+      setSelectedChallenge(challenge);
+      setEditChallengeData({
+        name: challenge.name,
+        description: challenge.description,
+        flag: challenge.flag,
+        difficulty: challenge.difficulty,
+        hint1: challenge.hint1,
+        hint2: challenge.hint2,
+        solution: challenge.solution,
+        categoryId: challenge.category?.id
+      });
+      setShowEditForm(true);
+    }}
+  >Edit</button>
+  <button
+    className='red'
+    title="Delete"
+    onClick={() => handleDeleteChallenge(challenge.id)}
+  >Delete</button>
+</td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="8" style={{ textAlign: "center", padding: "1rem" }}>
+                                <td colSpan="9" style={{ textAlign: "center", padding: "1rem" }}>
                                     {searchMessage || "No challenges available."}
                                 </td>
                             </tr>
@@ -401,10 +414,16 @@ function ChallengesSubPage() {
                             value={newChallenge.hint2}
                             onChange={(e) => setNewChallenge({ ...newChallenge, hint2: e.target.value })}
                         />
+                        <input
+                            type="text"
+                            placeholder="Solution"
+                            value={newChallenge.solution || ''}
+                            onChange={(e) => setNewChallenge({ ...newChallenge, solution: e.target.value })}
+                        />
 
                         <div className="modal-actions">
                             <button type="submit" className="green" disabled={submitting}>Submit</button>
-                            <button type="button" onClick={() => { setShowAddForm(false); setAddError(null); setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: '' }) }} className="red">Cancel</button>
+                            <button type="button" onClick={() => { setShowAddForm(false); setAddError(null); setNewChallenge({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', solution: '', categoryId: '' }) }} className="red">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -468,6 +487,12 @@ function ChallengesSubPage() {
                             placeholder="Hint 2"
                             value={editChallengeData.hint2}
                             onChange={(e) => setEditChallengeData({ ...editChallengeData, hint2: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Solution"
+                            value={editChallengeData.solution || ''}
+                            onChange={(e) => setEditChallengeData({ ...editChallengeData, solution: e.target.value })}
                         />
 
                         <div className="modal-actions">

@@ -39,10 +39,10 @@
 }
 
 .inputs > a{
-    color: blue;
+    color: #007bff;
     cursor: pointer;
     text-decoration: underline;
-    font-size: 0.8rem;
+    font-size: 1rem;
 }
 
 .inputbox{
@@ -71,11 +71,29 @@
 
 }
 
-.inputbox > img{
+.icon-lock {
     height: 2rem;
-    margin-left:1rem;
-    opacity: 60%;
+    margin-left: 1rem;
+    opacity: 0.6;
 }
+
+.icon-toggle {
+    position: absolute;
+    right: 1rem;
+    height: 1.4rem;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.icon-toggle:hover {
+    opacity: 1;
+}
+
+.inputbox.password,
+.inputbox.conf-password {
+    position: relative;
+}
+
 
 .signup-button Button{
     padding: 1.3rem 5rem;
@@ -125,6 +143,20 @@
 .social-signup a:hover img {
     filter: brightness(0.85);
 }
+
+.inputbox.password,
+.inputbox.conf-password {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    height: 1.4rem;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
 
 @media screen and (max-width:700px) {
 

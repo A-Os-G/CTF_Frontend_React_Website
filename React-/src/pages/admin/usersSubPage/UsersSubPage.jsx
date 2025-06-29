@@ -79,7 +79,12 @@ function UsersSubPage() {
                 setLoading(false);
             })
             .catch((err) => {
-                setError(err);
+                const message =
+      err.response?.data?.response ||
+      err.response?.data?.message ||
+      err.message ||
+      "Something went wrong. Please try again!";
+    setError(message);
                 setLoading(false);
             });
     }
@@ -100,8 +105,12 @@ function UsersSubPage() {
                     setAddError(res.data.response || "failed to add user.");
                 }
             }).catch((err) => {
-                const message = err.response?.data?.response || "faild to add user"
-                setAddError(message);
+                const message =
+      err.response?.data?.response ||
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to add user.";
+    setAddError(message);
             }).finally(() => {
                 setSubmitting(false);
             });
@@ -137,8 +146,11 @@ function UsersSubPage() {
                 }
             })
             .catch((err) => {
-                const message = err.response?.data?.response || "Error updating user.";
-                setEditError(message);
+                console.log("API Error:", err.response);
+                const message =
+        err.response?.data?.response ||
+        "Something went wrong. Please try again!";
+    setEditError(message);
             }).finally(() => {
                 setSubmitting(false);
             });
@@ -283,13 +295,12 @@ function UsersSubPage() {
             {showAddForm && (
                 <div className="modal-backdrop">
                     <form
-                    
                         onSubmit={(e) => {
                             e.preventDefault();
-                            handleEditUser();
+                            handleAddUser();
                         }}
-
-                        className="modal">
+                        className="modal"
+                    >
                         <h2>Add New User</h2>
 
                         {addError && <p>{addError}</p>}
@@ -320,8 +331,8 @@ function UsersSubPage() {
                             <option value="ROLE_LECTURER">LECTURER</option>
                         </select>
                         <div className="modal-actions">
-                            <button onClick={handleAddUser} className="green" disabled={submitting}>Submit</button>
-                            <button onClick={() => {setShowAddForm(false); setAddError(null);setNewUser('')}} className="red">Cancel</button>
+                            <button type="submit" className="green" disabled={submitting}>Submit</button>
+                            <button type="button" onClick={() => {setShowAddForm(false); setAddError(null); setNewUser({ username: '', email: '', password: '', role: 'ROLE_USER' });}} className="red">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -333,7 +344,7 @@ function UsersSubPage() {
                     <form 
                         onSubmit={(e) => {
                             e.preventDefault();
-                            handleEditUser();
+                            handleEditUser(selectedUser.id); // always pass the id!
                         }}
 
                         className="modal">
@@ -369,8 +380,8 @@ function UsersSubPage() {
                         </select>
 
                         <div className="modal-actions">
-                            <button onClick={() => handleEditUser(selectedUser.id)} className="green" disabled={submitting}>Submit</button>
-                            <button onClick={() => {setShowEditForm(false); setSelectedUser(null); setEditError(null)}} className="red">Cancel</button>
+                            <button type="submit" className="green" disabled={submitting}>Submit</button>
+                            <button type="button" onClick={() => {setShowEditForm(false); setSelectedUser(null); setEditError(null)}} className="red">Cancel</button>
                         </div>
                     </form>
                 </div>

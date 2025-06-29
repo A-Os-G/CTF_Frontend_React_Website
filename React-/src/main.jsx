@@ -4,9 +4,11 @@ import {BrowserRouter} from 'react-router-dom'
 import {Helmet} from 'react-helmet'
 import App from './App.jsx'
 import './index.css'
+import { AuthProvider } from './Routes/AuthProvider';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <AuthProvider>
     <BrowserRouter>
 
       <Helmet>
@@ -18,5 +20,6 @@ createRoot(document.getElementById('root')).render(
       <App />
       
     </BrowserRouter>
+    </AuthProvider>
   </StrictMode>
 )

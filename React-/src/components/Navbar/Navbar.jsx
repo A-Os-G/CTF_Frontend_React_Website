@@ -68,11 +68,7 @@ function SharedNavbar() {
             )}
             {isChallengePage && (
               <>
-                <li>
-                  <NavLink to="/" smooth duration={500}>
-                    Home
-                  </NavLink>
-                </li>
+
                 <li>
                   <NavLink to="/challenge" smooth duration={500}>
                     Challenges
@@ -83,11 +79,7 @@ function SharedNavbar() {
 
             {isProfile && (
               <>
-                <li>
-                  <NavLink to="/" smooth duration={500}>
-                    Home
-                  </NavLink>
-                </li>
+
                 <li>
                   <NavLink to="/challenge" smooth duration={500}>
                     Challenges

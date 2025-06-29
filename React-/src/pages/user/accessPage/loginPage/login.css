@@ -39,10 +39,10 @@
 }
 
 .login-inputs > .routing > a {
-    color: blue;
+    color: #007bff;
     cursor: pointer;
     text-decoration: underline;
-    font-size: 0.8rem;
+    font-size: 1.1rem;
     display: flex;
     flex-direction: column;
     margin: 0.5rem;
@@ -97,4 +97,136 @@
     .login-input-Side{
         width: 100%;
     }
+}
+
+/* --- Forget Modal Overlay --- */
+.forget-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* --- Forget Modal Content --- */
+.forget-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    padding: 2.5rem 2rem 2rem 2rem;
+    border-radius: 1.2rem;
+    width: 28rem;
+    box-shadow: 0px 2px 10px 2px rgba(0,0,0,0.13);
+}
+
+.forget-modal-content h2 {
+    margin-bottom: 1.5rem;
+    color: #111;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* --- Form --- */
+.forget-modal-content form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- Input --- */
+.forget-modal-input {
+    margin: 0.7rem 0;
+    width: 90%;
+    padding: 0.9rem 1rem;
+    border-radius: 0.7rem;
+    border: 1.5px solid #bbb;
+    font-size: 1.1rem;
+    background: #fff;
+    transition: border 0.2s;
+    outline: none;
+}
+
+.forget-modal-input:focus {
+    border: 1.5px solid #63e1a8;
+}
+
+/* --- Actions --- */
+.forget-modal-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin-top: 1.2rem;
+    gap: 1.2rem;
+}
+
+/* --- Buttons --- */
+.forget-modal-actions button {
+    padding: 0.7rem 2.2rem;
+    border-radius: 0.7rem;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.forget-modal-actions button[type="submit"] {
+    background: #e8f7ef;
+    color: #111;
+    border: 2px solid #63e1a8;
+}
+
+.forget-modal-actions button[type="submit"]:hover {
+    background: #63e1a8;
+    color: #fff;
+}
+
+.forget-modal-actions button[type="button"] {
+    background: #ff2222;
+    color: #fff;
+    border: 2px solid #ff2222;
+}
+
+.forget-modal-actions button[type="button"]:hover {
+    background: #fff;
+    color: #ff2222;
+    border: 2px solid #ff2222;
+}
+
+.forget-modal-actions button:disabled {
+    background: #b2e9d3;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+/* --- Message --- */
+.forget-modal-message {
+    margin-top: 1.2rem;
+    color: #2b7a4b;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Button style for the link */
+.forget-password-link-modal {
+    background: none;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    padding: 0;
+    transition: color 0.2s;
+}
+.forget-password-link-modal:hover {
+    color: #0056b3;
 }

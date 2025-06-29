@@ -8,6 +8,8 @@ function ChallengeModal({ challenge, visible, onClose, onSubmitFlag }) {
   const [usedHints, setUsedHints] = useState([]);
   const [visibleHints, setVisibleHints] = useState([]); // ✅ For controlling which hints are shown
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showSolution, setShowSolution] = useState(false);
+  const [showHintModal, setShowHintModal] = useState(null); // null, 1, or 2
 
   useEffect(() => {
     if (visible && challenge) {
@@ -45,7 +47,6 @@ function ChallengeModal({ challenge, visible, onClose, onSubmitFlag }) {
 
         <div className="flag-submit">
           <div className="hint-buttons">
-            <p className="hint-title"><b>Hints:</b></p>
             {[1, 2].map(num => (
               <div key={num}>
                 <button
@@ -53,17 +54,19 @@ function ChallengeModal({ challenge, visible, onClose, onSubmitFlag }) {
                   onClick={() => {
                     setUsedHints(prev => prev.includes(num) ? prev : [...prev, num]);
                     setVisibleHints(prev => prev.includes(num) ? prev : [...prev, num]);
+                    setShowHintModal(num); // Open the modal for this hint
                   }}
                 >
-                  {num}
+                  Hint: {num}
                 </button>
-                {visibleHints.includes(num) && (
-                  <p className="hint-text" style={{ marginTop: '0.5rem' }}>
-                    {challenge[`hint${num}`]}
-                  </p>
-                )}
               </div>
             ))}
+            <button
+              className="reveal-btn"
+              onClick={() => setShowSolution(true)}
+            >
+              Reveal Solution
+            </button>
           </div>
 
           <input
@@ -93,6 +96,32 @@ function ChallengeModal({ challenge, visible, onClose, onSubmitFlag }) {
         }}
         challengeId={challenge.id}
       />
+
+      {/* Solution Modal */}
+      {showSolution && (
+        <div className="modal-overlay">
+          <div className="modal-box" style={{ maxWidth: '40rem', padding: '2rem' }}>
+            <button className="close-button" onClick={() => setShowSolution(false)}>✖</button>
+            <h3 style={{margin: '0.6rem 0rem'}}>Solution</h3>
+            <hr />
+            <p style={{ whiteSpace: 'pre-wrap', margin: '0.4rem 0rem 0rem 0rem'} }>{challenge.solution}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Hint Modal */}
+      {showHintModal && (
+        <div className="modal-overlay">
+          <div className="modal-box" style={{ maxWidth: '30rem', padding: '1.5rem' }}>
+            <button className="close-button" onClick={() => setShowHintModal(null)}>✖</button>
+            <h3 style={{margin: '0.6rem 0rem'}}>Hint {showHintModal}</h3>
+            <hr />
+            <p style={{ whiteSpace: 'pre-wrap', margin: '0.4rem 0rem 0rem 0rem'} }>
+              {challenge[`hint${showHintModal}`]}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
