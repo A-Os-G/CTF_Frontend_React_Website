@@ -1,6 +1,6 @@
 import React from 'react';
 import './body_two.css'
-import Button from '../../../../components/ui/Button';
+import ButtonNormal from '../../../../components/ui/ButtonNormal.jsx';
 
 function Body_Two() {
     return ( 
@@ -29,7 +29,7 @@ function Body_Two() {
                 </div>
 
                     <div className="b2_button wiggle">
-                        <Button name="Start Practice" address="./challenge"/>
+                        <ButtonNormal name="Start Practice" address="./challenge"/>
                     </div>
             </div>
 

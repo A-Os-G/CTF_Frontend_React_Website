@@ -2,96 +2,93 @@ import React, { useEffect, useState } from 'react';
 import '../../../components/AdminSubPageLayout/adminSubPageLayout.css';
 import axios from 'axios';
 
+// CategorySubPage handles CRUD operations for challenge categories
 function CategorySubPage() {
 
-// Pagination
+    // Pagination state
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
 
-// Handle searchS
+    // Search state
     const [isSearching, setIsSearching] = useState(false);
     const [searchMessage, setSearchMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
-// Edit Category
+    // Edit category state
     const [editValue, setEditValue] = useState('');
     const [editCategory, setEditCategory] = useState(null);
     const [editError, setEditError] = useState(null);
 
-// ADD Category
+    // Add category state
     const [addError, setAddError] = useState(null);
     const [newCategory, setNewCategory] = useState('');
     const [showAddForm, setShowAddForm] = useState(false);
 
-// Get Category
+    // Categories data
     const [categories, setCategories] = useState([]);
 
-// Delete Category
+    // Delete category state
     const [deleteError, setDeleteError] = useState(null);
 
-// OThers
+    // Other UI state
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
+    // --- API HANDLERS ---
 
-// API Handles
-
-    // Search Api
+    // Search for a category by name
     const handleSearch = (e) => {
-    e.preventDefault();
-    setIsSearching(true);
-    const trimmed = searchTerm.trim();
+        e.preventDefault();
+        setIsSearching(true);
+        const trimmed = searchTerm.trim();
 
-    if (!trimmed) {
-        setIsSearching(false);
-        handleCategoriesAll();
-        setSearchMessage('');
-        return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    axios.get(`/api/category/get/type/with-challenge-count/${trimmed}`)
-    .then(res => {
-        const category = res.data.response;
-        setCategories([{ ...category }]); // this still works
-        setTotalPages(1);
-        setPage(0);
-        setSearchMessage('');
-    })
-
-        .catch(err => {
-        if (err.response?.status === 500 || err.response?.status === 404) {
-            setCategories([]);
-            setSearchMessage('Category not found.');
-        } else {
-            setError('Search failed.');
+        if (!trimmed) {
+            setIsSearching(false);
+            handleCategoriesAll();
+            setSearchMessage('');
+            return;
         }
-        })
-        .finally(() => setLoading(false));
+
+        setLoading(true);
+        setError(null);
+
+        axios.get(`/api/category/get/type/with-challenge-count/${trimmed}`)
+            .then(res => {
+                const category = res.data.response;
+                setCategories([{ ...category }]);
+                setTotalPages(1);
+                setPage(0);
+                setSearchMessage('');
+            })
+            .catch(err => {
+                if (err.response?.status === 500 || err.response?.status === 404) {
+                    setCategories([]);
+                    setSearchMessage('Category not found.');
+                } else {
+                    setError('Search failed.');
+                }
+            })
+            .finally(() => setLoading(false));
     };
 
-
-    // GET ALL Api
+    // Get all categories (paginated)
     const handleCategoriesAll = (pageNum = 0) => {
         setIsSearching(false);
         axios.get(`/api/category/get/all/with-challenge-counts?page=${pageNum}&size=5`)
-        .then((res) => {
-            setCategories(res.data.response);
-            setTotalPages(res.data.totalPages);
-            setPage(pageNum);
-            setLoading(false);
-        })
-        .catch((err) => {
-            setError(err);
-            setLoading(false);
-        });
-
+            .then((res) => {
+                setCategories(res.data.response);
+                setTotalPages(res.data.totalPages);
+                setPage(pageNum);
+                setLoading(false);
+            })
+            .catch((err) => {
+                setError(err);
+                setLoading(false);
+            });
     };
 
-    // POST Api
+    // Add a new category
     const handleAddCategory = (e) => {
         if (e) e.preventDefault();
         if (!newCategory.trim()) {
@@ -117,7 +114,7 @@ function CategorySubPage() {
             });
     };
 
-    // PUT Api
+    // Edit an existing category
     const handleEditCategory = (e) => {
         if (e) e.preventDefault();
 
@@ -144,7 +141,7 @@ function CategorySubPage() {
             });
     };
 
-    // DETETE Api
+    // Delete a category
     const handleDeleteCategory = (id) => {
         setDeleteError(null);
         const confirmDelete = window.confirm("Are you sure you want to delete this category?");
@@ -153,23 +150,21 @@ function CategorySubPage() {
         axios.delete(`/api/category/delete/${id}`)
             .then((res) => {
                 alert(res.data.response);
-                setCategories(prev => prev.filter(cat => cat.id !== id)); 
+                setCategories(prev => prev.filter(cat => cat.id !== id));
             })
             .catch(err => {
                 setDeleteError(err.response?.data?.response || 'Failed to delete category.');
             });
     };
 
+    // --- USE EFFECTS ---
 
-
-// USE EFFECTS
-
-    // Render All
+    // Fetch all categories on mount
     useEffect(() => {
         handleCategoriesAll();
     }, []);
 
-    // Keyboard Friendly
+    // Keyboard shortcut: ESC closes modals and clears errors
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
@@ -183,7 +178,9 @@ function CategorySubPage() {
         return () => document.removeEventListener('keydown', handleKeyPress);
     }, []);
 
-// Loading Handle
+    // --- RENDER LOGIC ---
+
+    // Loading spinner
     if (loading) return (
         <div className='loading'>
             <div className="spinner" />
@@ -191,7 +188,7 @@ function CategorySubPage() {
         </div>
     );
 
-//   Error Handle
+    // Error message
     if (error) return (
         <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
             <strong>Error:</strong> {error}
@@ -200,6 +197,7 @@ function CategorySubPage() {
 
     return (
         <div className="admin-layout">
+            {/* Search and Add Category */}
             <div className="upper-part">
                 <form className="search" onSubmit={handleSearch}>
                     <input id="searchTerm" type="text" placeholder='Search by Name'
@@ -222,13 +220,14 @@ function CategorySubPage() {
                 </div>
             </div>
 
+            {/* Delete error message */}
             {deleteError && (
                 <div style={{ color: 'red', textAlign: 'center', marginBottom: '1rem' }}>
                     {deleteError}
                 </div>
             )}
 
-
+            {/* Category table */}
             <div className="data-table">
                 <table>
                     <thead>
@@ -261,6 +260,7 @@ function CategorySubPage() {
                 </table>
             </div>
 
+            {/* Pagination controls */}
             {!isSearching && (
                 <div className="pagination">
                     <button className="green" disabled={page === 0} onClick={() => handleCategoriesAll(page - 1)}>{`<`}</button>
@@ -269,7 +269,7 @@ function CategorySubPage() {
                 </div>
             )}
 
-    {/* Add modal */}
+            {/* Add Category Modal */}
             {showAddForm && (
                 <div className="modal-backdrop">
                     <form className="modal" onSubmit={handleAddCategory}>
@@ -291,7 +291,7 @@ function CategorySubPage() {
                 </div>
             )}
 
-    {/* Edit Modal */}
+            {/* Edit Category Modal */}
             {editCategory && (
                 <div className="modal-backdrop">
                     <form className="modal" onSubmit={handleEditCategory}>

@@ -4,19 +4,23 @@ import "./editProfile.css";
 axios.defaults.withCredentials = true;
 
 const EditProfile = ({ userId }) => {
+  // State for user profile info
   const [user, setUser] = useState({ username: "", email: "" });
+  // State for password fields
   const [passwords, setPasswords] = useState({
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  // State for success and error messages
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  // State for toggling password visibility
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
 
-
+  // Fetch current user info on mount
   useEffect(() => {
     axios
       .get("http://localhost:8080/api/user/me")
@@ -26,12 +30,15 @@ const EditProfile = ({ userId }) => {
       .catch((err) => setError("Failed to load user info"));
   }, []);
 
+  // Handle profile info input changes
   const handleUserChange = (e) =>
     setUser({ ...user, [e.target.name]: e.target.value });
 
+  // Handle password input changes
   const handlePasswordChange = (e) =>
     setPasswords({ ...passwords, [e.target.name]: e.target.value });
 
+  // Handle profile update form submit
   const handleProfileUpdate = (e) => {
     e.preventDefault();
     setMessage("");
@@ -53,11 +60,13 @@ const EditProfile = ({ userId }) => {
       );
   };
 
+  // Handle password update form submit
   const handlePasswordUpdate = (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
 
+    // Check if new password and confirm password match
     if (passwords.newPassword !== passwords.confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -84,6 +93,7 @@ const EditProfile = ({ userId }) => {
       );
   };
 
+  // Handle account deletion
   const handleDeleteAccount = () => {
     if (window.confirm("Are you sure you want to delete your account?")) {
       axios
@@ -96,6 +106,7 @@ const EditProfile = ({ userId }) => {
     }
   };
 
+  // Handle logout
   const handleLogout = () => {
     axios.post("http://localhost:8080/perform_logout", {}, { withCredentials: true })
       .finally(() => {
@@ -109,6 +120,7 @@ const EditProfile = ({ userId }) => {
       <div className="edit-profile-container">
         <div className="edit-profile-header">Edit Profile</div>
 
+        {/* Success and error messages */}
         {message && <div className="success-msg">{message}</div>}
         {error && <div className="error-msg">{error}</div>}
 
@@ -141,7 +153,7 @@ const EditProfile = ({ userId }) => {
           </form>
         </section>
 
-        {/* Password */}
+        {/* Password Update */}
         <section className="profile-section">
           <h3>Update Password</h3>
           <p>Use a strong password to keep your account secure.</p>
@@ -154,6 +166,7 @@ const EditProfile = ({ userId }) => {
               onChange={handlePasswordChange}
               placeholder="Current Password"
             />
+            {/* Toggle old password visibility */}
             <img
               src="/images/Password.png"
               alt="Toggle"
@@ -170,6 +183,7 @@ const EditProfile = ({ userId }) => {
               onChange={handlePasswordChange}
               placeholder="New Password"
             />
+            {/* Toggle new password visibility */}
             <img
               src="/images/Password.png"
               alt="Toggle"
@@ -186,6 +200,7 @@ const EditProfile = ({ userId }) => {
               onChange={handlePasswordChange}
               placeholder="Confirm New Password"
             />
+            {/* Toggle confirm password visibility */}
             <img
               src="/images/Password.png"
               alt="Toggle"
@@ -200,7 +215,7 @@ const EditProfile = ({ userId }) => {
           </form>
         </section>
 
-        {/* Danger Zone */}
+        {/* Danger Zone: Logout and Delete Account */}
         <section className="profile-section danger-zone">
           <h3>Account Actions</h3>
           <p>Logout or delete your account permanently.</p>

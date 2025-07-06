@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './Navbar.css';
-import Button from '../ui/Button';
+import ButtonNormal from '../ui/ButtonNormal';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Link as Scroll } from 'react-scroll';
 
@@ -109,9 +109,9 @@ function SharedNavbar() {
             {/* Right Button */}
             <div className="Nav-button">
             {(isAdmin || isChallengePage || isProfile) ? (
-                <Button name="Profile" address="./profile" />
+                <ButtonNormal name="Profile" address="./profile" />
             ) : (
-                <Button name="Login / Signup" address="./login" />
+                <ButtonNormal name="Login / Signup" address="./login" />
             )}
             </div>
 

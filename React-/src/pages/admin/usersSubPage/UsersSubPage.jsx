@@ -3,39 +3,37 @@ import '../../../components/AdminSubPageLayout/adminSubPageLayout.css';
 import axios from 'axios';
 
 function UsersSubPage() {
-    
-// Pagination
+    // Pagination state
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    
-// Handle Search
+
+    // Search state
     const [searchEmail, setSearchEmail] = useState('');
     const [searchMessage, setSearchMessage] = useState('');
     const [isSearching, setIsSearching] = useState(false);
-    
-// Edit User
+
+    // Edit user state
     const [selectedUser, setSelectedUser] = useState(null);
     const [editUserData, setEditUserData] = useState({ username: '', email: '', password: '', role: 'ROLE_USER' });
     const [showEditForm, setShowEditForm] = useState(false);
     const [editError, setEditError] = useState(null);
-    
-// Add User
+
+    // Add user state
     const [newUser, setNewUser] = useState({ username: '', email: '', password: '', role: 'ROLE_USER' });
     const [showAddForm, setShowAddForm] = useState(false);
     const [addError, setAddError] = useState(null);
-    
-// Get User
+
+    // User data
     const [data, setData] = useState([]);
-    
-// Others
+
+    // Other UI state
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // --- API HANDLERS ---
 
-// API Handles
-
-    // Search Api
+    // Search for a user by email
     const handleSearch = (e) => {
         e.preventDefault();
         setIsSearching(true);
@@ -68,7 +66,7 @@ function UsersSubPage() {
             });
     }
 
-    // GET ALL Api
+    // Get all users (paginated)
     const handleUsersAll = (pageNum = 0) => {
         setIsSearching(false);
         axios.get(`/api/user/get/all?page=${pageNum}&size=5`)
@@ -80,16 +78,16 @@ function UsersSubPage() {
             })
             .catch((err) => {
                 const message =
-      err.response?.data?.response ||
-      err.response?.data?.message ||
-      err.message ||
-      "Something went wrong. Please try again!";
-    setError(message);
+                    err.response?.data?.response ||
+                    err.response?.data?.message ||
+                    err.message ||
+                    "Something went wrong. Please try again!";
+                setError(message);
                 setLoading(false);
             });
     }
 
-    // POST Api
+    // Add a new user
     const handleAddUser = () => {
         setAddError(null);
         setSubmitting(true);
@@ -106,17 +104,17 @@ function UsersSubPage() {
                 }
             }).catch((err) => {
                 const message =
-      err.response?.data?.response ||
-      err.response?.data?.message ||
-      err.message ||
-      "Failed to add user.";
-    setAddError(message);
+                    err.response?.data?.response ||
+                    err.response?.data?.message ||
+                    err.message ||
+                    "Failed to add user.";
+                setAddError(message);
             }).finally(() => {
                 setSubmitting(false);
             });
     }
 
-    // PUT Api
+    // Edit an existing user
     const handleEditUser = (id) => {
         const confirmEdit = window.confirm("Are you sure you want to save the changes?");
         if (!confirmEdit) return;
@@ -124,12 +122,14 @@ function UsersSubPage() {
         setEditError(null);
         setSubmitting(true);
 
+        // Prepare payload for user update
         const payload = {
             username: editUserData.username,
             email: editUserData.email,
             role: editUserData.role,
         };
 
+        // Only include password if it's set
         if (editUserData.password) {
             payload.password = editUserData.password;
         }
@@ -148,15 +148,15 @@ function UsersSubPage() {
             .catch((err) => {
                 console.log("API Error:", err.response);
                 const message =
-        err.response?.data?.response ||
-        "Something went wrong. Please try again!";
-    setEditError(message);
+                    err.response?.data?.response ||
+                    "Something went wrong. Please try again!";
+                setEditError(message);
             }).finally(() => {
                 setSubmitting(false);
             });
     }
 
-    // DETETE Api
+    // Delete a user
     const deleteUser = (id) => {
         const confirmDelete = window.confirm("are you sure you want to delete the user?")
         if (!confirmDelete) return;
@@ -174,23 +174,22 @@ function UsersSubPage() {
             })
             .catch((err) => {
                 const msg =
-      err.response?.data?.response ||
-      err.response?.data?.message ||
-      err.message ||
-      "Failed to delete user.";
-    setError(msg);
+                    err.response?.data?.response ||
+                    err.response?.data?.message ||
+                    err.message ||
+                    "Failed to delete user.";
+                setError(msg);
             })
     }
 
+    // --- USE EFFECTS ---
 
-// USE EFFECTS
-
-    // Render All
+    // Fetch all users on mount
     useEffect(() => {
         handleUsersAll();
     },[]);
     
-    // Keyboard Friendly
+    // Keyboard shortcut: ESC closes modals and clears errors
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
@@ -205,27 +204,28 @@ function UsersSubPage() {
         return () => document.removeEventListener('keydown', handleKeyPress);
     }, []);
 
-// Loading Handle
+    // --- RENDER LOGIC ---
+
+    // Loading spinner
     if (loading) return (
         <div className='loading'>
             <div className="spinner" />
             <p>Loading, please wait...</p>
         </div>
-      );
-      
-//   Error Handle
-    if (error) return (
-    <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
-        <strong>Error:</strong> {error}
-    </div>
     );
       
-
+    // Error message
+    if (error) return (
+        <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
+            <strong>Error:</strong> {error}
+        </div>
+    );
+      
     return ( 
         <div className="admin-layout">
 
+            {/* Search and Add User */}
             <div className="upper-part">
-
                 <form typeof='submit' method='GET' className="search" onSubmit={handleSearch}>
                     <input id="searchEmail" type="text" placeholder='Search by EMAIL'
                         value={searchEmail}
@@ -247,9 +247,9 @@ function UsersSubPage() {
                 <div className="AddNew">
                     <button className='green' onClick={() => setShowAddForm(true)} >Add New</button>
                 </div>
-
             </div>
 
+            {/* User table */}
             <div className="data-table">
                 <table>
                     <thead>
@@ -270,8 +270,11 @@ function UsersSubPage() {
                                 <td>{user.email}</td>
                                 <td>{user.role}</td>
                                 <td>{new Date(user.regDateAndTime).toLocaleString()}</td>
-                                <td> <button className='green' onClick={() => { setSelectedUser(user); setEditUserData({ username: user.username, email: user.email,password: '', role: user.role}); setShowEditForm(true);}}>Edit</button>
-                                    <button className='red' onClick={() => deleteUser(user.id)}>Delete</button></td></tr>
+                                <td>
+                                    <button className='green' onClick={() => { setSelectedUser(user); setEditUserData({ username: user.username, email: user.email,password: '', role: user.role}); setShowEditForm(true);}}>Edit</button>
+                                    <button className='red' onClick={() => deleteUser(user.id)}>Delete</button>
+                                </td>
+                            </tr>
                         ))
                     ) : (
                         <tr>
@@ -284,14 +287,14 @@ function UsersSubPage() {
                 </table>
             </div>
 
+            {/* Pagination controls */}
             {!isSearching && <div className="pagination">
                 <button className="green" disabled={page === 0} onClick={() => handleUsersAll(page - 1)}>{`<`}</button>
                 <span>Page {page + 1} of {totalPages}</span>
                 <button className="green" disabled={page + 1 >= totalPages} onClick={() => handleUsersAll(page + 1)}>{`>`}</button>
             </div>}
 
-
-{/* Add modal */}
+            {/* Add User Modal */}
             {showAddForm && (
                 <div className="modal-backdrop">
                     <form
@@ -336,9 +339,9 @@ function UsersSubPage() {
                         </div>
                     </form>
                 </div>
-                )}
+            )}
 
-{/* Edit Modal */}
+            {/* Edit User Modal */}
             {showEditForm && selectedUser && (
                 <div className="modal-backdrop">
                     <form 
@@ -346,7 +349,6 @@ function UsersSubPage() {
                             e.preventDefault();
                             handleEditUser(selectedUser.id); // always pass the id!
                         }}
-
                         className="modal">
                         <h2>Edit User</h2>
 

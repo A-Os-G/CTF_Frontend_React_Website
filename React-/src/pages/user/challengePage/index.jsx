@@ -11,18 +11,21 @@ import { useState, useEffect } from 'react';
 import './index.css'
 
 function ChallengePage() {
+  // State for challenges and pagination
   const [challenges, setChallenges] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  // State for modal and selected challenge
   const [selectedChallenge, setSelectedChallenge] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  // State for progress and refresh
   const [progressMap, setProgressMap] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
 
-
+  // Fetch user progress for all challenges
   const fetchProgress = () => {
     axios.get('/api/progress/get')
       .then(res => {
@@ -35,13 +38,13 @@ function ChallengePage() {
       });
   };
 
-  
-
+  // Open the challenge modal with selected challenge
   const openChallengeModal = (challenge) => {
     setSelectedChallenge(challenge);
     setModalVisible(true);
   };
 
+  // Handle flag submission for a challenge
   const handleFlagSubmit = (id, flag, usedHints, onSuccessCallback) => {
     axios.post(`/api/challenge/solve/${id}`, {
       submittedFlag: flag,
@@ -56,7 +59,7 @@ function ChallengePage() {
       .catch(() => alert("Wrong flag or error occurred"));
   };
 
-
+  // Fetch challenges for the current page
   const fetchChallenges = (pageNum = 0) => {
     setLoading(true);
     axios.get(`/api/challenge/get/public/all?page=${pageNum}&size=16`)
@@ -69,11 +72,13 @@ function ChallengePage() {
       .finally(() => setLoading(false));
   };
 
+  // On mount, fetch challenges and progress
   useEffect(() => {
     fetchChallenges();
     fetchProgress();
   }, []);
 
+  // Handle filtering by search, category, or difficulty
   const handleFilter = ({ searchTerm, selectedCategory, selectedDifficulty }) => {
     if (searchTerm.trim()) {
       axios.get(`/api/challenge/get/name/${searchTerm}`)
@@ -92,6 +97,7 @@ function ChallengePage() {
     }
   };
 
+  // Handle flag submission for feedback modal
   const onSubmitFlag = (challengeId, flag, usedHints, onSuccessCallback) => {
     axios.post(`/api/challenge/solve/${challengeId}?flag=${flag}`)
       .then(res => {
@@ -103,22 +109,26 @@ function ChallengePage() {
       });
   };
 
-
   return (
     <>
+      {/* Navbar */}
       <Navbar type='challenge'/>
       <div className='body'>
+        {/* User Progress Bar */}
         <Progress refresh={refreshKey} />
 
 
         <div className="layout">
+          {/* Filter Section */}
           <Filter onFilter={handleFilter} />
           {loading ? (
             <div className="spinner" />
           ) : (
             <>
+              {/* Challenge Cards */}
               <ChallengeCard challenges={challenges} onCardClick={openChallengeModal} progressMap={progressMap}/>
 
+              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="pagination">
                   <button disabled={page === 0} onClick={() => fetchChallenges(page - 1)}>{'<'}</button>
@@ -131,16 +141,15 @@ function ChallengePage() {
         </div>
         
       </div>
+        {/* Challenge Modal */}
         <ChallengeModal
           visible={modalVisible}
           challenge={selectedChallenge}
           onClose={() => setModalVisible(false)}
           onSubmitFlag={handleFlagSubmit}
-          
         />
 
-
-
+      {/* Footer */}
       <Footer />
     </>
   );

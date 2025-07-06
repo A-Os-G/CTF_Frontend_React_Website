@@ -4,47 +4,48 @@ import axios from 'axios';
 
 function ChallengesSubPage() {
 
-// Pagination
+    // --- State Management ---
+
+    // Pagination
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
 
-// Handle Search
+    // Search
     const [searchName, setSearchName] = useState('');
     const [searchMessage, setSearchMessage] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('');
 
-// Edit Challenge
+    // Edit Challenge
     const [selectedChallenge, setSelectedChallenge] = useState(null);
     const [editChallengeData, setEditChallengeData] = useState({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', categoryId: ''  });
     const [showEditForm, setShowEditForm] = useState(false);
     const [editError, setEditError] = useState(null);
 
-// Add Challenge
+    // Add Challenge
     const [newChallenge, setNewChallenge] = useState({ name: '', description: '', flag: '', difficulty: 'EASY', hint1: '', hint2: '', solution: '', categoryId: '' });
     const [showAddForm, setShowAddForm] = useState(false);
     const [addError, setAddError] = useState(null);
 
-// Get Challenge
+    // Challenge Data
     const [data, setData] = useState([]);
 
-// delete Challenge
+    // Delete Challenge
     const [deleteError, setDeleteError] = useState(null);
 
-// Others
+    // Other UI State
     const [categories, setCategories] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Add these states at the top of your component
+    // Image upload state
     const [newChallengeImage, setNewChallengeImage] = useState(null);
     const [editChallengeImage, setEditChallengeImage] = useState(null);
 
+    // --- API HANDLERS ---
 
-// API Handles
-
-    // Search Api
+    // Search for a challenge by name
     const handleSearch = (e) => {
         e.preventDefault();
         setIsSearching(true);
@@ -77,7 +78,7 @@ function ChallengesSubPage() {
             });
     };
 
-    // GET ALL Api
+    // Get all challenges (paginated)
     const handleChallengesAll = (pageNum = 0) => {
         setIsSearching(false);
         axios.get(`/api/challenge/get/all?page=${pageNum}&size=5`)
@@ -93,11 +94,12 @@ function ChallengesSubPage() {
             });
     };
 
-    // POST Api
+    // Add a new challenge
     const handleAddChallenge = () => {
         setAddError(null);
         setSubmitting(true);
 
+        // Prepare payload for challenge creation
         const payload = {
             name: newChallenge.name,
             description: newChallenge.description,
@@ -116,6 +118,7 @@ function ChallengesSubPage() {
                     // Always extract the ID from response.id
                     const challengeId = res.data.response?.id;
 
+                    // If image is attached, upload it after challenge creation
                     if (challengeId && newChallengeImage) {
                       uploadImage(challengeId, newChallengeImage).then(() => {
                         alert("Challenge and image uploaded!");
@@ -141,50 +144,52 @@ function ChallengesSubPage() {
             });
     };
 
-    // PUT Api
+    // Edit an existing challenge
     const handleEditChallenge = (id) => {
-    setEditError(null);
-    setSubmitting(true);
+        setEditError(null);
+        setSubmitting(true);
 
-    const payload = {
-        name: editChallengeData.name,
-        description: editChallengeData.description,
-        flag: editChallengeData.flag,
-        difficulty: editChallengeData.difficulty,
-        hint1: editChallengeData.hint1,
-        hint2: editChallengeData.hint2,
-        solution: editChallengeData.solution // <-- Add this
+        // Prepare payload for challenge update
+        const payload = {
+            name: editChallengeData.name,
+            description: editChallengeData.description,
+            flag: editChallengeData.flag,
+            difficulty: editChallengeData.difficulty,
+            hint1: editChallengeData.hint1,
+            hint2: editChallengeData.hint2,
+            solution: editChallengeData.solution // <-- Add this
+        };
+
+        axios.patch(`/api/challenge/put/${id}?catid=${editChallengeData.categoryId}`, payload)
+            .then((res) => {
+                if (res.data.status === "SUCCESS") {
+                  // If image is attached, upload it after challenge update
+                  if (editChallengeImage) {
+                    uploadImage(id, editChallengeImage).then(() => {
+                      alert("Challenge updated and image uploaded!");
+                      handleChallengesAll();
+                    });
+                  } else {
+                    alert(res.data.response);
+                    handleChallengesAll();
+                  }
+                  setShowEditForm(false);
+                  setSelectedChallenge(null);
+                  setEditChallengeImage(null);
+                } else {
+                    setEditError(res.data.response || "Failed to update challenge.");
+                }
+            })
+            .catch((err) => {
+                const message = err.response?.data?.response || "Error updating challenge.";
+                setEditError(message);
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
 
-    axios.patch(`/api/challenge/put/${id}?catid=${editChallengeData.categoryId}`, payload)
-        .then((res) => {
-            if (res.data.status === "SUCCESS") {
-              if (editChallengeImage) {
-                uploadImage(id, editChallengeImage).then(() => {
-                  alert("Challenge updated and image uploaded!");
-                  handleChallengesAll();
-                });
-              } else {
-                alert(res.data.response);
-                handleChallengesAll();
-              }
-              setShowEditForm(false);
-              setSelectedChallenge(null);
-              setEditChallengeImage(null);
-            } else {
-                setEditError(res.data.response || "Failed to update challenge.");
-            }
-        })
-        .catch((err) => {
-            const message = err.response?.data?.response || "Error updating challenge.";
-            setEditError(message);
-        })
-        .finally(() => {
-            setSubmitting(false);
-        });
-    };
-
-    // DETETE Api
+    // Delete a challenge
     const handleDeleteChallenge = (id) => {
         setDeleteError(null);
         const confirmDelete = window.confirm("Are you sure you want to delete this challenge?");
@@ -194,14 +199,13 @@ function ChallengesSubPage() {
             .then((res) => {
                 alert(res.data.response);
                 setData(prev => prev.filter(challenge => challenge.id !== id));
-                
             })
             .catch(err => {
                 setDeleteError(err.response?.data?.response || 'Failed to delete challenge.');
             });
     };
 
-    // SORT Categories
+    // Filter challenges by category
     const handleCategoryFilter = (categoryId) => {
         setSelectedCategory(categoryId);
         if (categoryId === '') {
@@ -224,14 +228,14 @@ function ChallengesSubPage() {
         }
     };
 
-// Use Effects
+    // --- USE EFFECTS ---
 
-    // Render All
+    // Fetch all challenges on mount
     useEffect(() => {
         handleChallengesAll();
     }, []);
 
-    // Keyboard Friendly
+    // Keyboard shortcut: ESC closes modals and clears errors
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
@@ -246,7 +250,7 @@ function ChallengesSubPage() {
         return () => document.removeEventListener('keydown', handleKeyPress);
     }, []);
 
-    // Get all Categories
+    // Fetch all categories for dropdowns
     useEffect(() => {
         axios.get('/api/category/get/all')
             .then((res) => {
@@ -257,8 +261,9 @@ function ChallengesSubPage() {
             });
     }, []);
 
+    // --- RENDER LOGIC ---
 
-// Loading Handle
+    // Loading spinner
     if (loading) return (
         <div className='loading'>
             <div className="spinner" />
@@ -266,7 +271,7 @@ function ChallengesSubPage() {
         </div>
       );
       
-//   Error Handle
+    // Error message
     if (error) return (
         <div style={{ textAlign: 'center', color: 'red', padding: '2rem' }}>
             <strong>Error:</strong> {error}
@@ -275,6 +280,7 @@ function ChallengesSubPage() {
 
     return (
         <div className="admin-layout">
+            {/* Search and filter section */}
             <div className="upper-part">
                 <form className="search" onSubmit={handleSearch}>
                     <input
@@ -292,16 +298,15 @@ function ChallengesSubPage() {
                     <img src="/images/search_icon.png" alt="Search" onClick={handleSearch} />
                 </form>
 
-
                 <p> Challenge Management </p>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => handleCategoryFilter(e.target.value)}
-                        className="category-filter styled-dropdown"
-                    >
-                        <option value="">All Categories</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.type}</option>
+                <select
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryFilter(e.target.value)}
+                    className="category-filter styled-dropdown"
+                >
+                    <option value="">All Categories</option>
+                    {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.type}</option>
                     ))}
                 </select>
 
@@ -310,6 +315,7 @@ function ChallengesSubPage() {
                 </div>
             </div>
 
+            {/* Data table for challenges */}
             <div className="data-table">
                 <table>
                     <thead>
@@ -338,30 +344,31 @@ function ChallengesSubPage() {
                                     <td className="truncate" title={challenge.hint2}>{challenge.hint2}</td>
                                     <td className="truncate solution" title={challenge.solution}>{challenge.solution}</td>
                                     <td>
-  <button
-    className='green'
-    title="Edit"
-    onClick={() => {
-      setSelectedChallenge(challenge);
-      setEditChallengeData({
-        name: challenge.name,
-        description: challenge.description,
-        flag: challenge.flag,
-        difficulty: challenge.difficulty,
-        hint1: challenge.hint1,
-        hint2: challenge.hint2,
-        solution: challenge.solution,
-        categoryId: challenge.category?.id
-      });
-      setShowEditForm(true);
-    }}
-  >Edit</button>
-  <button
-    className='red'
-    title="Delete"
-    onClick={() => handleDeleteChallenge(challenge.id)}
-  >Delete</button>
-</td>
+                                        {/* Edit and Delete buttons */}
+                                        <button
+                                            className='green'
+                                            title="Edit"
+                                            onClick={() => {
+                                                setSelectedChallenge(challenge);
+                                                setEditChallengeData({
+                                                    name: challenge.name,
+                                                    description: challenge.description,
+                                                    flag: challenge.flag,
+                                                    difficulty: challenge.difficulty,
+                                                    hint1: challenge.hint1,
+                                                    hint2: challenge.hint2,
+                                                    solution: challenge.solution,
+                                                    categoryId: challenge.category?.id
+                                                });
+                                                setShowEditForm(true);
+                                            }}
+                                        >Edit</button>
+                                        <button
+                                            className='red'
+                                            title="Delete"
+                                            onClick={() => handleDeleteChallenge(challenge.id)}
+                                        >Delete</button>
+                                    </td>
                                 </tr>
                             ))
                         ): (
@@ -375,14 +382,15 @@ function ChallengesSubPage() {
                 </table>
             </div>
 
+            {/* Pagination controls */}
             {!isSearching && <div className="pagination">
                 <button className="green" disabled={page === 0} onClick={() => handleChallengesAll(page - 1)}>{`<`}</button>
                 <span>Page {page + 1} of {totalPages}</span>
                 <button className="green" disabled={page + 1 >= totalPages} onClick={() => handleChallengesAll(page + 1)}>{`>`}</button>
             </div>}
 
-    {/* Add Model */}
-           {showAddForm && (
+            {/* Add Challenge Modal */}
+            {showAddForm && (
                 <div className="modal-backdrop">
                     <form className="modal" onSubmit={(e) => { e.preventDefault(); handleAddChallenge(); }}>
                         <h2>Add New Challenge</h2>
@@ -444,11 +452,12 @@ function ChallengesSubPage() {
                             onChange={(e) => setNewChallenge({ ...newChallenge, solution: e.target.value })}
                         />
 
+                        {/* Image upload input */}
                         <input
                             type="file"
                             accept="image/*"
                             onChange={e => setNewChallengeImage(e.target.files[0])}
-                            />
+                        />
 
                         <div className="modal-actions">
                             <button type="submit" className="green" disabled={submitting}>Submit</button>
@@ -458,8 +467,7 @@ function ChallengesSubPage() {
                 </div>
             )}
 
-
-    {/* Edit Model */}  
+            {/* Edit Challenge Modal */}
             {showEditForm && selectedChallenge && (
                 <div className="modal-backdrop">
                     <form className="modal" onSubmit={(e) => { e.preventDefault(); handleEditChallenge(selectedChallenge.id); }}>
@@ -474,7 +482,6 @@ function ChallengesSubPage() {
                         />
                         <textarea
                             type="text"
-
                             placeholder="Description"
                             value={editChallengeData.description}
                             onChange={(e) => setEditChallengeData({ ...editChallengeData, description: e.target.value })}
@@ -524,6 +531,7 @@ function ChallengesSubPage() {
                             onChange={(e) => setEditChallengeData({ ...editChallengeData, solution: e.target.value })}
                         />
 
+                        {/* Image upload input */}
                         <input
                             type="file"
                             accept="image/*"
@@ -542,6 +550,7 @@ function ChallengesSubPage() {
     );
 }
 
+// Helper function to upload image for a challenge
 const uploadImage = (challengeId, imageFile) => {
   if (!imageFile) return Promise.resolve();
   const formData = new FormData();

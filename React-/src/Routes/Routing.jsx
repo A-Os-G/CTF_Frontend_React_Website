@@ -13,12 +13,14 @@ import FeedbackSubPage from '../pages/admin/feedbackSubPage/index';
 import { useAuth } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
 
+// PublicRoute: Only accessible if NOT logged in
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null; // or a spinner
   return !user ? children : <Navigate to="/challenge" />;
 };
 
+// ProtectedRoute: Only accessible if logged in and has allowed role
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
   if (loading) return null; // or a spinner
@@ -27,6 +29,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+// Main app routing
 const Routing = () => (
   <Routes>
     {/* Public routes */}
@@ -46,7 +49,7 @@ const Routing = () => (
       </PublicRoute>
     } />
 
-    {/* ROLE_USER routes */}
+    {/* ROLE_USER, ROLE_LECTURER, ROLE_ADMIN can access these */}
     <Route path='/challenge' element={
       <ProtectedRoute allowedRoles={['ROLE_USER', 'ROLE_LECTURER', 'ROLE_ADMIN']}>
         <ChallengePage />
@@ -58,7 +61,7 @@ const Routing = () => (
       </ProtectedRoute>
     } />
 
-    {/* ROLE_LECTURER and ROLE_ADMIN routes */}
+    {/* ROLE_LECTURER and ROLE_ADMIN only */}
     <Route path='/admin' element={
       <ProtectedRoute allowedRoles={['ROLE_LECTURER', 'ROLE_ADMIN']}>
         <AdminPage />
@@ -92,11 +95,10 @@ function LogoutButton() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
+  // Clear user context and redirect to home
   const handleLogout = () => {
-    // Clear user context
     setUser(null);
     // Optionally clear cookies/localStorage/session here
-    // Redirect to home page
     navigate("/");
   };
 

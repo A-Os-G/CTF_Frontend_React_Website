@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import './signup.css'
 import Button from '../../../../components/ui/Button';
-import { Link, useNavigate } from 'react-router-dom' // <-- import useNavigate
+import { Link, useNavigate } from 'react-router-dom' 
 
 function Signup() {
+    // State for signup form
+    // Using useState to manage form inputs, error messages, and success messages
     const [form, setForm] = useState({
         username: '',
         email: '',
@@ -15,12 +17,15 @@ function Signup() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const navigate = useNavigate(); // <-- add this
+    // Using useNavigate from react-router-dom to navigate after successful registration
+    const navigate = useNavigate();
 
+    // Handler functions for form submission and input changes
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    // Submit handler for the signup form
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -45,7 +50,11 @@ function Signup() {
             const data = await response.json();
 
             if (!response.ok || data.status !== "SUCCESS") {
-                setError(data.message || 'Registration failed');
+                setError(
+                    data.message ||
+                    data.response ||
+                    'Registration failed'
+                );
             } else {
                 setSuccess('Registration successful! Redirecting to login...');
                 setForm({ username: '', email: '', password: '', confirmPassword: '' });
@@ -58,6 +67,7 @@ function Signup() {
         }
     };
 
+    // Render the signup form
     return ( 
         <>
         <div className="signup-Section">
@@ -68,18 +78,6 @@ function Signup() {
                 <div className="signup-header">
                     <h1>SIGNUP</h1>
                 </div>
-                {/* Social signup buttons under header */}
-                {/*
-                <div className="social-signup" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', margin: '1rem 0' }}>
-                    <a href="http://localhost:8080/oauth2/authorization/google">
-                        <img src="/images/google.png" alt="Sign up with Google" />
-                    </a>
-                    <a href="http://localhost:8080/oauth2/authorization/github">
-                        <img src="/images/github_Footer.png" alt="Sign up with GitHub" />
-                    </a>
-                </div>
-                */}
-                {/* Error and success messages under header */}
                 {error && <div className="error-message" style={{ color: 'red', textAlign: 'center', marginBottom: '0.5rem' }}>{error}</div>}
                 {success && <div className="success-message" style={{ color: 'green', textAlign: 'center', marginBottom: '0.5rem' }}>{success}</div>}
                 <form className="inputs" onSubmit={handleSubmit}>
@@ -91,6 +89,7 @@ function Signup() {
                             name='username'
                             value={form.username}
                             onChange={handleChange}
+                            
                             required
                         />  
                     </div>
@@ -122,9 +121,6 @@ function Signup() {
                         onClick={() => setShowPassword(prev => !prev)}
                     />
                     </div>
-
-
-
                     <div className='inputbox conf-password'>
                     <img src="/images/login_password.png" alt="" className="icon-lock" />
                     <input
@@ -142,8 +138,6 @@ function Signup() {
                         onClick={() => setShowConfirmPassword(prev => !prev)}
                     />
                     </div>
-
-
                     <Link to='/login'>Already Have an account?</Link>
                     <div className="signup-button">
                         <Button name="Signup" type="submit" />
